@@ -47,16 +47,16 @@ CREATE TABLE `Seat` (
 	`isAvailable`	BOOLEAN	NOT NULL
 );
 
-CREATE TABLE `Passenger` (
-	`passengerId`	BIGINT	NOT NULL,
-	`passengerNum`	VARCHAR	NOT NULL,
-	`firstName`	VARCHAR	NOT NULL,
-	`lastName`	VARCHAR	NOT NULL,
-	`dateOfBirth`	DATE	NOT NULL,
-	`gender`	VARCHAR	NOT NULL,
-	`nationality`	VARCHAR	NOT NULL,
-	`address`	VARCHAR	NOT NULL,
-	`phoneNum`	VARCHAR	NOT NULL
+CREATE TABLE Passenger (
+	passengerId	BIGINT	NOT NULL,
+	passengerNum	VARCHAR(10)	NOT NULL,
+	firstName	VARCHAR(20)	NOT NULL,
+	lastName	VARCHAR(20)	NOT NULL,
+	dateOfBirth 	DATE	NOT NULL,
+	gender		VARCHAR(6)	NOT NULL,
+	nationality	VARCHAR(20)	NOT NULL,
+	address		VARCHAR(50)	NOT NULL,
+	phoneNum	VARCHAR(20)	NOT NULL
 );
 
 ALTER TABLE `Airport` ADD CONSTRAINT `PK_AIRPORT` PRIMARY KEY (
