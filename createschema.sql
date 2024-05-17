@@ -60,5 +60,6 @@ CREATE TABLE Passenger (
 	gender		VARCHAR(6)	NOT NULL,
 	nationality	VARCHAR(20)	NOT NULL,
 	address		VARCHAR(50)	NOT NULL,
-	phoneNum	VARCHAR(20)	NOT NULL
+	phoneNum	VARCHAR(20)	NOT NULL,
+	PRIMARY KEY(passengerId)
 );
