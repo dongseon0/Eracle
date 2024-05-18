@@ -15,18 +15,19 @@ public class UpdateTotalPriceProcedure {
         boolean additionalBaggage = true; // 추가 수하물 여부 입력
 
 	    // 사용자로부터 추가 수하물 여부 입력 받기
-        // boolean additionalBaggage = getAdditionalBaggageFromUser();
+        additionalBaggage = getAdditionalBaggageFromUser();
 	
         // JDBC 연결
         try (Connection conn = DriverManager.getConnection(url, user, password)) {
-            // 프로시저 호출
-            double totalPrice = getTotalPrice(conn, reservationId, additionalBaggage);
+            // totalPrice 업데이트
+            double totalPrice = updateTotalPrice(conn, reservationId, additionalBaggage);
             
             System.out.println("Total price updated. New total price: " + totalPrice);
         } catch (SQLException ex) {
-            System.err.println("Database Connection Error: " + ex.getMessage());
+            System.err.println("DB 연결 오류: " + ex.getMessage());
         }
     }
+    
     
     private static boolean getAdditionalBaggageFromUser() {
         Scanner scanner = new Scanner(System.in);
@@ -34,14 +35,30 @@ public class UpdateTotalPriceProcedure {
         String userInput = scanner.nextLine().toUpperCase();
         return userInput.equals("Y");
     }
+
+
+    private static double updateTotalPrice(Connection conn, long reservationId, boolean additionalBaggage) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement( "UPDATE Reservation SET totalPrice = totalPrice + ? WHERE reservationId = ?")) {
+            double additionalCost = additionalBaggage ? 50000 : 0; // 추가 수하물 여부에 따른 추가 비용 5만원
+            stmt.setDouble(1, additionalCost);
+            stmt.setLong(2, reservationId);
+            stmt.executeUpdate();
+        }
+        
+        // 업데이트된 totalPrice 반환
+        return getTotalPriceFromDatabase(conn, reservationId);
+    }
     
-    private static double getTotalPrice(Connection conn, long reservationId, boolean additionalBaggage) throws SQLException {
-        try (CallableStatement stmt = conn.prepareCall("{call AddBaggage(?, ?, ?)}")) {
+    private static double getTotalPriceFromDatabase(Connection conn, long reservationId) throws SQLException { 
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT totalPrice FROM Reservation WHERE reservationId = ?")) {
             stmt.setLong(1, reservationId);
-            stmt.setBoolean(2, additionalBaggage);
-            stmt.registerOutParameter(3, Types.DOUBLE);
-            stmt.execute();
-            return stmt.getDouble(3);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("totalPrice");
+                } else {
+                    throw new SQLException("Reservation not found for ID: " + reservationId);
+                }
+            }
         }
     }
 }
