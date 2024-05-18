@@ -1,19 +1,25 @@
-﻿CREATE TABLE `Airport` (
-	`airportId`	BIGINT	NOT NULL,
-	`airportName`	VARCHAR	NOT NULL,
-	`nation`	VARCHAR	NOT NULL,
-	`location`	VARCHAR	NOT NULL
+﻿CREATE TABLE Airport (
+	airportId	BIGINT	NOT NULL,
+	airportName	VARCHAR(50)	NOT NULL,
+	nation	VARCHAR(50)	NOT NULL,
+	location(50)	VARCHAR	NOT NULL,
+	primary key(airportId)
 );
 
-CREATE TABLE `Flight` (
-	`flightId`	BIGINT	NOT NULL,
-	`departureAirportId`	BIGINT	NOT NULL,
-	`arrivalAirportId`	BIGINT	NOT NULL,
-	`aircraftId`	BIGINT	NOT NULL,
-	`departureTime`	DATETIME	NOT NULL,
-	`arrivalTime`	DATETIME	NOT NULL,
-	`airline`	VARCHAR	NOT NULL,
-	`flightPrice`	INT	NOT NULL
+CREATE TABLE Flight (
+	flightId BIGINT	NOT NULL,
+	departureAirportId BIGINT	NOT NULL,
+	arrivalAirportId BIGINT	NOT NULL,
+	aircraftId	BIGINT	NOT NULL,
+	departureTime	DATETIME	NOT NULL,
+	arrivalTime	DATETIME	NOT NULL,
+	airline	VARCHAR(50) NOT NULL,
+	flightPrice	INT	NOT NULL,
+	primary key(flightId),
+    foreign key(departureAirportId) references Airport(airportId),
+    foreign key(arrivalAirportId) references Airport(airportId),
+    foreign key(aircraftId) references Aircraft(aircraftId)
+
 );
 
 CREATE TABLE Reservation (
@@ -32,23 +38,28 @@ CREATE TABLE Reservation (
 	foreign key(passengerNum) references Passenger(passengerNum)
 );
 
-CREATE TABLE `Airline` (
-	`airlineId`	BIGINT	NOT NULL,
-	`airlineName`	VARCHAR	NOT NULL
+CREATE TABLE Airline (
+	airlineId	BIGINT	NOT NULL,
+	airlineName	VARCHAR(50)	NOT NULL,
+	primary key(airlineId)
 );
 
-CREATE TABLE `Aircraft` (
-	`aircraftId`	BIGINT	NOT NULL,
-	`airlineId`	BIGINT	NOT NULL,
-	`model`	VARCHAR	NOT NULL,
-	`capacity`	INT	NOT NULL
+CREATE TABLE Aircraft (
+	aircraftId	BIGINT	NOT NULL,
+	airlineId	BIGINT	NOT NULL,
+	model	VARCHAR(50)	NOT NULL,
+	capacity	INT	NOT NULL,
+	primary key(aircraftId),
+    foreign key(airlineId) references Airline(airlineId)
 );
 
-CREATE TABLE `Seat` (
-	`seatId`	BIGINT	NOT NULL,
-	`flightId`	BIGINT	NOT NULL,
-	`seatNum`	INT	NOT NULL,
-	`isAvailable`	BOOLEAN	NOT NULL
+CREATE TABLE Seat (
+	seatId	BIGINT	NOT NULL,
+	flightId	BIGINT	NOT NULL,
+	seatNum	INT	NOT NULL,
+	isAvailable	BOOLEAN	NOT NULL,
+	primary key(seatId),
+    foreign key(flightId) references Flight(flightId)
 );
 
 CREATE TABLE Passenger (
@@ -61,5 +72,5 @@ CREATE TABLE Passenger (
 	nationality	VARCHAR(20)	NOT NULL,
 	address		VARCHAR(50)	NOT NULL,
 	phoneNum	VARCHAR(20)	NOT NULL,
-	PRIMARY KEY(passengerId)
+	primary key(passengerId)
 );
