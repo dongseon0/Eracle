@@ -73,4 +73,39 @@ public class Reservation {
             }
         }
     }
+
+    // 주어진 예약 일렬번호의 예약 정보를 삭제하는 코드
+    private static void deleteFromReservationTable(Connection conn, long deleteReservationId) throws SQLException {
+    	String sql = "DELETE FROM Reservation WHERE reservationId = ?";
+    	
+    	try (PreparedStatement pStmt = conn.prepareStatement(sql)) {
+    		// PreparedStatement에 삭제할 예약 일렬번호 설정
+    		pStmt.setLong(1, deleteReservationId);
+    		
+    		// 쿼리 실행
+    		pStmt.executeUpdate(sql);
+    	} catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    // 사용자에게 예약 일렬번호를 입력받아 해당 예약 정보를 삭제하는 코드
+    public static void deleteReservation() {
+    	// MySQL 데이터베이스 연결 정보
+        String url = "jdbc:mysql://localhost:3306/데베이름";
+        String user = "유저이름";
+        String password = "비번";
+        
+        // 사용자로부터 삭제할 예약 일렬번호 입력 받기
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("삭제할 예약 일렬번호: ");
+        long deleteReservationId = scanner.nextLong();
+        
+        try (Connection conn = DriverManager.getConnection(url, user, password)) {
+            deleteFromReservationTable(conn, deleteReservationId);
+        } catch (SQLException e) {
+            System.out.println("데이터베이스 연결 오류!");
+            e.printStackTrace();
+        } 	
+    }
 }
