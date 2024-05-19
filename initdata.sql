@@ -51,7 +51,7 @@ VALUES
     ('KE407', 111, 102, 310, '2024-06-01 11:00:00', '2024-06-01 15:00:00', 'Korean Air', 650000),
     ('OZ408', 111, 105, 311, '2024-06-05 09:00:00', '2024-06-05 13:00:00', 'Asiana Airlines', 620000);
 
-INSERT INTO Passenger (passengerId, passengerNum, firstName, lastName, gender, nationality, address, phoneNum, dateOfBirth)
+INSERT INTO Passenger (passengerId, passportNum, firstName, lastName, gender, nationality, address, phoneNum, dateOfBirth)
 VALUES
     (10001, 'AT1M43', 'Alan', 'Turing', 'Male', 'England', '123 Main Street, London, England', '4499-1111-0111', '1943-01-01'),
     (10002, 'GH2F66', 'Grace', 'Hopper', 'Female', 'USA', '456 Maple Avenue, New York, USA', '0199-2222-0222', '1966-02-02'),
@@ -88,7 +88,7 @@ VALUES
     (515, 'OZ408', 31, TRUE),
     (516, 'OZ408', 32, TRUE);
 
-INSERT INTO Reservation (reservationId, flightId, passengerId, passengerNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice)
+INSERT INTO Reservation (reservationId, flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice)
 VALUES
     (20001, 'BA401', 10001, 'AT1M43', '2024-06-01', 'bu', 13, false, 540000),
     (20002, 'AA402', 10003, 'JV3M76', '2024-06-05', 'eco', 2, true, 200000),
