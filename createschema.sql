@@ -54,7 +54,7 @@ CREATE TABLE Passenger (
     phoneNum VARCHAR(20) NOT NULL,
     PRIMARY KEY (passengerId)
 );
-CREATE INDEX passengerNum_Index ON Passenger(passengerNum);
+CREATE INDEX passportNum_Index ON Passenger(passportNum);
 
 CREATE TABLE Seat (
     seatId BIGINT NOT NULL,
