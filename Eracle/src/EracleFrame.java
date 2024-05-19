@@ -14,43 +14,34 @@ public class EracleFrame extends JFrame {
     public EracleFrame() {
         setTitle("Eracle Airline Reservation System");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
+
         // Initialize database connection
         initDBConnection();
+
+        // Show login window
+        addPassengerInfo();
 
         Container contentPane = getContentPane();
         contentPane.setBackground(EWHA_COLOR_1);
         contentPane.setLayout(new FlowLayout());
 
-        JButton passengerInfoButton = new JButton("Passenger Info.");
-        passengerInfoButton.setFont(new Font("Monospaced", Font.BOLD, 15));
-        passengerInfoButton.setBackground(EWHA_COLOR_2);
-        passengerInfoButton.setOpaque(true);
-        
-        passengerInfoButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                addPassengerInfo();
-            }
-        });
-        
         JButton flightsButton = new JButton("Flights");
         flightsButton.setFont(new Font("Monospaced", Font.BOLD, 15));
         flightsButton.setBackground(EWHA_COLOR_2);
         flightsButton.setOpaque(true);
-        
+
         flightsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 findFlights();
             }
         });
-        
-        JButton reservationButton = new JButton("Reservation");
+
+        JButton reservationButton = new JButton("My Reservation");
         reservationButton.setFont(new Font("Monospaced", Font.BOLD, 15));
         reservationButton.setBackground(EWHA_COLOR_2);
         reservationButton.setOpaque(true);
-        
+
         reservationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -58,21 +49,20 @@ public class EracleFrame extends JFrame {
             }
         });
 
-        contentPane.add(passengerInfoButton);
         contentPane.add(flightsButton);
         contentPane.add(reservationButton);
-        
+
         setSize(800, 600);
         setVisible(true);
     }
 
-    // DB Connection 초기화
+    // DB Connection initialization
     private void initDBConnection() {
         try {
             // Initialize database connection here
-            String url = "jdbc:mysql://localhost:3306/eracledb";  // EB: Fill with your own database name.
-            String username = "root";          // EB: Fill with your own username.
-            String password = "password";     // EB: Fill with your own password.
+            String url = "jdbc:mysql://localhost:3306/eracledb";
+            String username = "root";
+            String password = "030213jeong";
             conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -81,7 +71,7 @@ public class EracleFrame extends JFrame {
 
     private void addPassengerInfo() {
         // Implement logic to add passenger information
-    	JTextField passengerIdField = new JTextField(20);
+    	JTextField passportNumField = new JTextField(20);
         JTextField firstNameField = new JTextField(20);
         JTextField lastNameField = new JTextField(20);
         JTextField dobField = new JTextField(20);
@@ -91,8 +81,8 @@ public class EracleFrame extends JFrame {
         JTextField phoneNumField = new JTextField(20);
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Passenger ID:"));
-        panel.add(passengerIdField);
+        panel.add(new JLabel("Passport Num:"));
+        panel.add(passportNumField);
         panel.add(new JLabel("First Name:"));
         panel.add(firstNameField);
         panel.add(new JLabel("Last Name:"));
@@ -108,11 +98,11 @@ public class EracleFrame extends JFrame {
         panel.add(new JLabel("Phone Number:"));
         panel.add(phoneNumField);
 
-        int result = JOptionPane.showConfirmDialog(this, panel, "Add Passenger Information", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(this, panel, "Passenger Login", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                Long passengerId = Long.parseLong(passengerIdField.getText());
-                String passengerNum = generatePassengerNumber();
+                Long passengerId = (long)(Math.random()*100 + 20);
+                String passportNum = passportNumField.getText();
         		String firstName = firstNameField.getText();
         		String lastName = lastNameField.getText();
         		String dateOfBirth = dobField.getText();
@@ -121,7 +111,7 @@ public class EracleFrame extends JFrame {
         		String address = addressField.getText();
         		String phoneNum = phoneNumField.getText();
                 
-                Passenger.insertPassenger(conn, passengerId, passengerNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
+                Passenger.insertPassenger(conn, passengerId, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
                 JOptionPane.showMessageDialog(this, "Passenger added successfully.");
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -129,20 +119,11 @@ public class EracleFrame extends JFrame {
         }
     }
 
-    private String generatePassengerNumber() {
-        // Generate a random passenger number (can be improved to meet specific requirements)
-        return "100";
-    	//return "P" + System.currentTimeMillis();
-    }
-
     private void findFlights() {
-        JTextField departureAirportField = new JTextField(20);
         JTextField arrivalAirportField = new JTextField(20);
         JTextField departureDateField = new JTextField(20);
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Departure Airport ID:"));
-        panel.add(departureAirportField);
         panel.add(new JLabel("Arrival Airport ID:"));
         panel.add(arrivalAirportField);
         panel.add(new JLabel("Departure Date (YYYY-MM-DD):"));
@@ -151,11 +132,10 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "SELECT * FROM Flight WHERE departureAirportId = ? AND arrivalAirportId = ? AND DATE(departureTime) = ?";
+                String query = "SELECT * FROM Flight WHERE arrivalAirportId = ? AND DATE(departureTime) = ?";
                 PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setLong(1, Long.parseLong(departureAirportField.getText()));
-                stmt.setLong(2, Long.parseLong(arrivalAirportField.getText()));
-                stmt.setDate(3, java.sql.Date.valueOf(departureDateField.getText()));
+                stmt.setLong(1, Long.parseLong(arrivalAirportField.getText()));
+                stmt.setDate(2, java.sql.Date.valueOf(departureDateField.getText()));
                 ResultSet rs = stmt.executeQuery();
 
                 List<String> flights = new ArrayList<>();
@@ -195,16 +175,15 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Make Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "INSERT INTO Reservation (flightId, passengerId, passengerNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                String query = "INSERT INTO Reservation (flightId, passengerId, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, flightId);
                 stmt.setLong(2, Long.parseLong(passengerIdField.getText()));
-                stmt.setString(3, generatePassengerNumber());
-                stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(5, classTypeField.getText());
-                stmt.setInt(6, Integer.parseInt(seatNumField.getText()));
-                stmt.setBoolean(7, additionalBaggageField.isSelected());
-                stmt.setInt(8, calculateTotalPrice(flightId, classTypeField.getText(), additionalBaggageField.isSelected()));
+                stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+                stmt.setString(4, classTypeField.getText());
+                stmt.setInt(5, Integer.parseInt(seatNumField.getText()));
+                stmt.setBoolean(6, additionalBaggageField.isSelected());
+                stmt.setInt(7, calculateTotalPrice(flightId, classTypeField.getText(), additionalBaggageField.isSelected()));
                 stmt.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Reservation made successfully.");
             } catch (SQLException e) {
@@ -265,10 +244,7 @@ public class EracleFrame extends JFrame {
 
     private void deleteReservation(long reservationId) {
         try {
-            String query = "DELETE FROM Reservation WHERE reservationId = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setLong(1, reservationId);
-            stmt.executeUpdate();
+        	Reservation.deleteReservation(conn, reservationId);
             JOptionPane.showMessageDialog(this, "Reservation deleted successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
