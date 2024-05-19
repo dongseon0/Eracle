@@ -44,7 +44,7 @@ CREATE INDEX departureTime_Index ON Flight(departureTime);
 
 CREATE TABLE Passenger (
     passengerId BIGINT NOT NULL,
-    passengerNum VARCHAR(10) NOT NULL,
+    passportNum VARCHAR(10) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(20) NOT NULL,
     dateOfBirth DATE NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE Reservation (
     reservationId BIGINT NOT NULL,
     flightId VARCHAR(10) NOT NULL,
     passengerId BIGINT NOT NULL,
-    passengerNum VARCHAR(10) NOT NULL,
+    passportNum VARCHAR(10) NOT NULL,
     reservationDate DATETIME NOT NULL,
     classType VARCHAR(5) NOT NULL,
     seatNum INT NOT NULL,
