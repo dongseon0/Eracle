@@ -55,7 +55,7 @@ INSERT INTO Passenger (passengerId, passengerNum, firstName, lastName, gender, n
 VALUES
     (10001, 'AT1M43', 'Alan', 'Turing', 'Male', 'England', '123 Main Street, London, England', '4499-1111-0111', '1943-01-01'),
     (10002, 'GH2F66', 'Grace', 'Hopper', 'Female', 'USA', '456 Maple Avenue, New York, USA', '0199-2222-0222', '1966-02-02'),
-    (10003, 'JV3M76', 'John', 'von Neumann', 'Male', 'Hungary', '789 Oak Lane, Budapest, Hungary', '3699-33330333', '1976-03-03'),
+    (10003, 'JV3M76', 'John', 'von Neumann', 'Male', 'Hungary', '789 Oak Lane, Budapest, Hungary', '3699-3333-0333', '1976-03-03'),
     (10004, 'TB1M88', 'Tim', 'Berners-Lee', 'Male', 'England', '101 Pine Street, Manchester, England', '4499-4444-0444', '1988-04-04'),
     (10005, 'AL1F99', 'Ada', 'Lovelace', 'Female', 'England', '234 Elm Street, Birmingham, England', '4499-5555-0555', '1999-05-05'),
     (10006, 'DK2M83', 'Donald', 'Knuth', 'Male', 'USA', '789 Oak Lane, Los Angeles, USA', '0199-6666-0666', '1983-06-06'),
