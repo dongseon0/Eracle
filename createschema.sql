@@ -5,12 +5,14 @@
     location VARCHAR(50) NOT NULL,
     PRIMARY KEY (airportId)
 );
+CREATE INDEX airportName_Index ON Airport(airportName);
 
 CREATE TABLE Airline (
     airlineId BIGINT NOT NULL,
     airlineName VARCHAR(50) NOT NULL,
     PRIMARY KEY (airlineId)
 );
+CREATE INDEX airlineName_Index ON Airline(airlineName);
 
 CREATE TABLE Aircraft (
     aircraftId BIGINT NOT NULL,
@@ -20,6 +22,8 @@ CREATE TABLE Aircraft (
     PRIMARY KEY (aircraftId),
     FOREIGN KEY (airlineId) REFERENCES Airline (airlineId)
 );
+CREATE INDEX airlineId_Index ON Aircraft(airlineId);
+
 
 CREATE TABLE Flight (
     flightId VARCHAR(10) NOT NULL,
@@ -35,6 +39,8 @@ CREATE TABLE Flight (
     FOREIGN KEY (arrivalAirportId) REFERENCES Airport (airportId),
     FOREIGN KEY (aircraftId) REFERENCES Aircraft (aircraftId)
 );
+CREATE INDEX arrivalTime_Index ON Flight(arrivalTime);
+CREATE INDEX departureTime_Index ON Flight(departureTime);
 
 CREATE TABLE Passenger (
     passengerId BIGINT NOT NULL,
@@ -48,6 +54,7 @@ CREATE TABLE Passenger (
     phoneNum VARCHAR(20) NOT NULL,
     PRIMARY KEY (passengerId)
 );
+CREATE INDEX passengerNum_Index ON Passenger(passengerNum);
 
 CREATE TABLE Seat (
     seatId BIGINT NOT NULL,
@@ -57,6 +64,7 @@ CREATE TABLE Seat (
     PRIMARY KEY (seatId),
     FOREIGN KEY (flightId) REFERENCES Flight (flightId)
 );
+CREATE INDEX seatNumIndex ON Seat(seatNum);
 
 CREATE TABLE Reservation (
     reservationId BIGINT NOT NULL,
@@ -72,3 +80,4 @@ CREATE TABLE Reservation (
     FOREIGN KEY (flightId) REFERENCES Flight (flightId),
     FOREIGN KEY (passengerId) REFERENCES Passenger (passengerId)
 );
+CREATE INDEX reservationDate_Index ON Reservation (reservationDate);
