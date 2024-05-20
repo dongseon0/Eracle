@@ -133,27 +133,27 @@ public class EracleFrame extends JFrame {
     private void findFlights() {
         JTextField arrivalAirportField = new JTextField(20);
         JTextField departureDateField = new JTextField(20);
-
+    
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Arrival Airport ID:"));
         panel.add(arrivalAirportField);
         panel.add(new JLabel("Departure Date (YYYY-MM-DD):"));
         panel.add(departureDateField);
-
+    
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
                 String query = "SELECT * FROM Flight WHERE arrivalAirportId = ? AND DATE(departureTime) = ?";
                 PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setLong(1, Long.parseLong(arrivalAirportField.getText()));
+                stmt.setString(1, arrivalAirportField.getText());  // Changed from setLong to setString
                 stmt.setDate(2, java.sql.Date.valueOf(departureDateField.getText()));
                 ResultSet rs = stmt.executeQuery();
-
+    
                 List<String> flights = new ArrayList<>();
                 while (rs.next()) {
                     flights.add("Flight ID: " + rs.getString("flightId") + ", Departure: " + rs.getTimestamp("departureTime") + ", Arrival: " + rs.getTimestamp("arrivalTime"));
                 }
-
+    
                 if (flights.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No flights found.");
                 } else {
@@ -167,6 +167,7 @@ public class EracleFrame extends JFrame {
             }
         }
     }
+    
     
     private void findCheapestFlightsByDate() {
         JTextField departureDateField = new JTextField(20);

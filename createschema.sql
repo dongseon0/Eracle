@@ -1,5 +1,5 @@
 ﻿CREATE TABLE Airport (
-    airportId BIGINT NOT NULL,
+    airportId VARCHAR(10) NOT NULL,
     airportName VARCHAR(50) NOT NULL,
     nation VARCHAR(50) NOT NULL,
     location VARCHAR(50) NOT NULL,
@@ -27,8 +27,8 @@ CREATE INDEX airlineId_Index ON Aircraft(airlineId);
 
 CREATE TABLE Flight (
     flightId VARCHAR(10) NOT NULL,
-    departureAirportId BIGINT NOT NULL,
-    arrivalAirportId BIGINT NOT NULL,
+    departureAirportId VARCHAR(10) NOT NULL,
+    arrivalAirportId VARCHAR(10) NOT NULL,
     aircraftId BIGINT NOT NULL,
     departureTime DATETIME NOT NULL,
     arrivalTime DATETIME NOT NULL,

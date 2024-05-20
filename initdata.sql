@@ -1,16 +1,19 @@
 INSERT INTO Airport (airportId, airportName, nation, location)
 VALUES
-    (101, 'Heathrow Airport', 'England', 'London'),
-    (102, 'John F. Kennedy International Airport', 'USA', 'New York'),
-    (103, 'Los Angeles International Airport', 'USA', 'Los Angeles'),
-    (104, 'Tokyo Haneda Airport', 'Japan', 'Tokyo'),
-    (105, 'Beijing Capital International Airport', 'China', 'Beijing'),
-    (106, 'Sydney Kingsford Smith Airport', 'Australia', 'Sydney'),
-    (107, 'Toronto Pearson International Airport', 'Canada', 'Toronto'),
-    (108, 'Charles de Gaulle Airport', 'France', 'Paris'),
-    (109, 'Frankfurt Airport', 'Germany', 'Frankfurt'),
-    (110, 'Amsterdam Schiphol Airport', 'Netherlands', 'Amsterdam'),
-    (111, 'Incheon International Airport', 'South Korea', 'Incheon');
+    ('LHR', 'Heathrow Airport', 'England', 'London'),
+    ('JFK', 'John F. Kennedy International Airport', 'USA', 'New York'),
+    ('LAX', 'Los Angeles International Airport', 'USA', 'Los Angeles'),
+    ('HND', 'Tokyo Haneda Airport', 'Japan', 'Tokyo'),
+    ('PEK', 'Beijing Capital International Airport', 'China', 'Beijing'),
+    ('SYD', 'Sydney Kingsford Smith Airport', 'Australia', 'Sydney'),
+    ('YYZ', 'Toronto Pearson International Airport', 'Canada', 'Toronto'),
+    ('CDG', 'Charles de Gaulle Airport', 'France', 'Paris'),
+    ('FRA', 'Frankfurt Airport', 'Germany', 'Frankfurt'),
+    ('AMS', 'Amsterdam Schiphol Airport', 'Netherlands', 'Amsterdam'),
+    ('ICN', 'Incheon International Airport', 'South Korea', 'Incheon'),
+    ('NRT', 'Narita International Airport', 'Japan', 'Tokyo'),
+    ('KIX', 'Kansai International Airport', 'Japan', 'Osaka'),
+    ('CTS', 'New Chitose Airport', 'Japan', 'Sapporo');
 
 INSERT INTO Airline (airlineId, airlineName)
 VALUES
@@ -42,14 +45,18 @@ VALUES
 
 INSERT INTO Flight (flightId, departureAirportId, arrivalAirportId, aircraftId, departureTime, arrivalTime, airline, flightPrice)
 VALUES
-    ('BA401', 101, 102, 301, '2024-06-01 10:00:00', '2024-06-01 14:00:00', 'British Airways', 540000),
-    ('AA402', 102, 103, 302, '2024-06-05 08:00:00', '2024-06-05 12:00:00', 'American Airlines', 200000),
-    ('JL403', 103, 104, 303, '2024-06-08 16:00:00', '2024-06-08 20:00:00', 'Japan Airlines', 180000),
-    ('CA404', 104, 105, 304, '2024-07-01 06:00:00', '2024-07-01 10:00:00', 'Air China', 480000),
-    ('QF405', 105, 106, 305, '2024-07-04 13:00:00', '2024-07-04 17:00:00', 'Qantas', 730000),
-    ('AC406', 106, 107, 306, '2024-08-24 09:00:00', '2024-08-24 13:00:00', 'Air Canada', 1300000),
-    ('KE407', 111, 102, 310, '2024-06-01 11:00:00', '2024-06-01 15:00:00', 'Korean Air', 650000),
-    ('OZ408', 111, 105, 311, '2024-06-05 09:00:00', '2024-06-05 13:00:00', 'Asiana Airlines', 620000);
+    ('BA401', 'ICN', 'LHR', 301, '2024-06-01 10:00:00', '2024-06-01 14:00:00', 'British Airways', 540000),
+    ('AA402', 'ICN', 'JFK', 302, '2024-06-05 08:00:00', '2024-06-05 12:00:00', 'American Airlines', 200000),
+    ('JL403', 'ICN', 'HND', 303, '2024-06-08 16:00:00', '2024-06-08 20:00:00', 'Japan Airlines', 180000),
+    ('CA404', 'ICN', 'PEK', 304, '2024-07-01 06:00:00', '2024-07-01 10:00:00', 'Air China', 480000),
+    ('QF405', 'ICN', 'SYD', 305, '2024-07-04 13:00:00', '2024-07-04 17:00:00', 'Qantas', 730000),
+    ('AC406', 'ICN', 'YYZ', 306, '2024-08-24 09:00:00', '2024-08-24 13:00:00', 'Air Canada', 1300000),
+    ('KE407', 'ICN', 'JFK', 310, '2024-06-05 11:00:00', '2024-06-05 15:00:00', 'Korean Air', 650000),
+    ('OZ408', 'ICN', 'PEK', 311, '2024-06-05 09:00:00', '2024-06-05 13:00:00', 'Asiana Airlines', 620000),
+    ('KE409', 'ICN', 'CDG', 310, '2024-06-05 10:00:00', '2024-06-05 16:00:00', 'Korean Air', 700000),
+    ('KE410', 'ICN', 'FRA', 310, '2024-06-05 12:00:00', '2024-06-05 18:00:00', 'Korean Air', 720000),
+    ('KL200', 'ICN', 'AMS', 301, '2024-06-05 13:00:00', '2024-06-05 19:00:00', 'KLM Royal Dutch Airlines', 560000);
+
 
 INSERT INTO Passenger (passengerId, passportNum, firstName, lastName, gender, nationality, address, phoneNum, dateOfBirth)
 VALUES
