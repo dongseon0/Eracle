@@ -29,7 +29,6 @@ public class EracleFrame extends JFrame {
         flightsButton.setFont(new Font("Monospaced", Font.BOLD, 15));
         flightsButton.setBackground(EWHA_COLOR_2);
         flightsButton.setOpaque(true);
-
         flightsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -37,11 +36,21 @@ public class EracleFrame extends JFrame {
             }
         });
 
+        JButton cheapestFlightsButton = new JButton("Find Cheapest Flights");
+        cheapestFlightsButton.setFont(new Font("Monospaced", Font.BOLD, 15));
+        cheapestFlightsButton.setBackground(EWHA_COLOR_2);
+        cheapestFlightsButton.setOpaque(true);
+        cheapestFlightsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                findCheapestFlightsByDate();
+            }
+        });
+
         JButton reservationButton = new JButton("My Reservation");
         reservationButton.setFont(new Font("Monospaced", Font.BOLD, 15));
         reservationButton.setBackground(EWHA_COLOR_2);
         reservationButton.setOpaque(true);
-
         reservationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -50,6 +59,7 @@ public class EracleFrame extends JFrame {
         });
 
         contentPane.add(flightsButton);
+        contentPane.add(cheapestFlightsButton); // 최저가 조회 버튼 추가
         contentPane.add(reservationButton);
 
         setSize(800, 600);
@@ -60,14 +70,15 @@ public class EracleFrame extends JFrame {
     private void initDBConnection() {
         try {
             // Initialize database connection here
-            String url = "jdbc:mysql://localhost:3306/eracledb";
+            String url = "jdbc:mysql://localhost:3306/eracle";
             String username = "root";
-            String password = "030213jeong";
+            String password = "r14985";
             conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
 
     private void addPassengerInfo() {
         // Implement logic to add passenger information
@@ -156,6 +167,41 @@ public class EracleFrame extends JFrame {
             }
         }
     }
+    
+    private void findCheapestFlightsByDate() {
+        JTextField departureDateField = new JTextField(20);
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Departure Date (YYYY-MM-DD):"));
+        panel.add(departureDateField);
+
+        int result = JOptionPane.showConfirmDialog(this, panel, "Find Cheapest Flights", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
+                String query = "SELECT airline, MIN(flightPrice) AS MinPrice " +
+                               "FROM Flight " +
+                               "WHERE DATE(departureTime) = ? " +
+                               "GROUP BY airline";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setDate(1, java.sql.Date.valueOf(departureDateField.getText()));
+                ResultSet rs = stmt.executeQuery();
+
+                List<String> flights = new ArrayList<>();
+                while (rs.next()) {
+                    flights.add("Airline: " + rs.getString("airline") + ", Minimum Price: $" + rs.getDouble("MinPrice"));
+                }
+
+                if (flights.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No flights found for the selected date.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, new JList(flights.toArray()), "Cheapest Flights", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     private void makeReservation(String flightId) {
         JTextField passengerIdField = new JTextField(20);
