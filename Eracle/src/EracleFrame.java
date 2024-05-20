@@ -71,8 +71,8 @@ public class EracleFrame extends JFrame {
         try {
             // Initialize database connection here
             String url = "jdbc:mysql://localhost:3306/eracle";
-            String username = "root";
-            String password = "r14985";
+            String username = "Eracle";
+            String password = "eracle";
             conn = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,7 +112,6 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Passenger Login", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                Long passengerId = (long)(Math.random()*100 + 20);
                 String passportNum = passportNumField.getText();
         		String firstName = firstNameField.getText();
         		String lastName = lastNameField.getText();
@@ -122,7 +121,7 @@ public class EracleFrame extends JFrame {
         		String address = addressField.getText();
         		String phoneNum = phoneNumField.getText();
                 
-                Passenger.insertPassenger(conn, passengerId, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
+                Passenger.insertPassenger(conn, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
                 JOptionPane.showMessageDialog(this, "Passenger added successfully.");
             } catch (SQLException e) {
                 e.printStackTrace();

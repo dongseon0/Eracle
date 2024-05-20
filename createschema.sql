@@ -43,7 +43,7 @@ CREATE INDEX arrivalTime_Index ON Flight(arrivalTime);
 CREATE INDEX departureTime_Index ON Flight(departureTime);
 
 CREATE TABLE Passenger (
-    passengerId BIGINT NOT NULL,
+    passengerId BIGINT NOT NULL AUTO_INCREMENT,
     passportNum VARCHAR(10) NOT NULL,
     firstName VARCHAR(20) NOT NULL,
     lastName VARCHAR(20) NOT NULL,
@@ -67,7 +67,7 @@ CREATE TABLE Seat (
 CREATE INDEX seatNumIndex ON Seat(seatNum);
 
 CREATE TABLE Reservation (
-    reservationId BIGINT NOT NULL,
+    reservationId BIGINT NOT NULL AUTO_INCREMENT,
     flightId VARCHAR(10) NOT NULL,
     passengerId BIGINT NOT NULL,
     passportNum VARCHAR(10) NOT NULL,

@@ -3,8 +3,7 @@ import java.sql.*;
 public class Passenger {
     public static void insertPassenger(
     		Connection conn, 
-    		long passengerId, 
-    		String passportNum, 
+    		String passportNum,
     		String firstName, 
     		String lastName, 
     		String dateOfBirth, 
@@ -13,7 +12,7 @@ public class Passenger {
     		String address, 
     		String phoneNum) throws SQLException {
         try {
-        	insertIntoPassengerTable(conn, passengerId, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
+        	insertIntoPassengerTable(conn, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -21,8 +20,7 @@ public class Passenger {
     
 	private static void insertIntoPassengerTable(
 			Connection conn, 
-			long passengerId, 
-			String passportNum, 
+			String passportNum,
 			String firstName, 
 			String lastName, 
 			String dateOfBirth, 
@@ -30,18 +28,17 @@ public class Passenger {
 			String nationality, 
 			String address, 
 			String phoneNum) throws SQLException{
-        String query = "INSERT INTO Passenger (passengerId, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Passenger (passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pStmt = conn.prepareStatement(query)){
-            pStmt.setLong(1, passengerId);
-            pStmt.setString(2, passportNum);
-            pStmt.setString(3, firstName);
-            pStmt.setString(4, lastName);
-            pStmt.setDate(5, java.sql.Date.valueOf(dateOfBirth));
-            pStmt.setString(6, gender);
-            pStmt.setString(7, nationality);
-            pStmt.setString(8, address);
-            pStmt.setString(9, phoneNum);
+            pStmt.setString(1, passportNum);
+            pStmt.setString(2, firstName);
+            pStmt.setString(3, lastName);
+            pStmt.setDate(4, java.sql.Date.valueOf(dateOfBirth));
+            pStmt.setString(5, gender);
+            pStmt.setString(6, nationality);
+            pStmt.setString(7, address);
+            pStmt.setString(8, phoneNum);
 
             int rowsInserted = pStmt.executeUpdate();
             if (rowsInserted > 0) {
