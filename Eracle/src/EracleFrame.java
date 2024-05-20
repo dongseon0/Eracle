@@ -58,6 +58,18 @@ public class EracleFrame extends JFrame {
             }
         });
 
+        JButton updatePassengerButton = new JButton("Update Passenger Info"); // 승객 정보 수정 버튼 추가
+        updatePassengerButton.setFont(new Font("Monospaced", Font.BOLD, 15));
+        updatePassengerButton.setBackground(EWHA_COLOR_2);
+        updatePassengerButton.setOpaque(true);
+        updatePassengerButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updatePassengerInfo();
+            }
+        });
+
+        contentPane.add(updatePassengerButton); // 승객 정보 수정 버튼 추가
         contentPane.add(flightsButton);
         contentPane.add(cheapestFlightsButton); // 최저가 조회 버튼 추가
         contentPane.add(reservationButton);
@@ -65,6 +77,7 @@ public class EracleFrame extends JFrame {
         setSize(800, 600);
         setVisible(true);
     }
+    
 
     // DB Connection initialization
     private void initDBConnection() {
@@ -296,6 +309,78 @@ public class EracleFrame extends JFrame {
             e.printStackTrace();
         }
     }
+
+
+    private void updatePassengerInfo() {
+        JTextField passportNumField = new JTextField(20);
+    
+        JPanel searchPanel = new JPanel(new GridLayout(0, 1));
+        searchPanel.add(new JLabel("Passport Number to Update:"));
+        searchPanel.add(passportNumField);
+    
+        int searchResult = JOptionPane.showConfirmDialog(this, searchPanel, "Search Passenger", JOptionPane.OK_CANCEL_OPTION);
+        if (searchResult == JOptionPane.OK_OPTION) {
+            try {
+                String passportNum = passportNumField.getText();
+                String query = "SELECT * FROM Passenger WHERE passportNum = ?";
+                PreparedStatement stmt = conn.prepareStatement(query);
+                stmt.setString(1, passportNum);
+                ResultSet rs = stmt.executeQuery();
+    
+                if (rs.next()) {
+                    JTextField firstNameField = new JTextField(rs.getString("firstName"), 20);
+                    JTextField lastNameField = new JTextField(rs.getString("lastName"), 20);
+                    JTextField dobField = new JTextField(rs.getString("dateOfBirth"), 20);
+                    JTextField genderField = new JTextField(rs.getString("gender"), 20);
+                    JTextField nationalityField = new JTextField(rs.getString("nationality"), 20);
+                    JTextField addressField = new JTextField(rs.getString("address"), 20);
+                    JTextField phoneNumField = new JTextField(rs.getString("phoneNum"), 20);
+    
+                    JPanel updatePanel = new JPanel(new GridLayout(0, 1));
+                    updatePanel.add(new JLabel("First Name:"));
+                    updatePanel.add(firstNameField);
+                    updatePanel.add(new JLabel("Last Name:"));
+                    updatePanel.add(lastNameField);
+                    updatePanel.add(new JLabel("Date of Birth (YYYY-MM-DD):"));
+                    updatePanel.add(dobField);
+                    updatePanel.add(new JLabel("Gender:"));
+                    updatePanel.add(genderField);
+                    updatePanel.add(new JLabel("Nationality:"));
+                    updatePanel.add(nationalityField);
+                    updatePanel.add(new JLabel("Address:"));
+                    updatePanel.add(addressField);
+                    updatePanel.add(new JLabel("Phone Number:"));
+                    updatePanel.add(phoneNumField);
+    
+                    int updateResult = JOptionPane.showConfirmDialog(this, updatePanel, "Update Passenger Info", JOptionPane.OK_CANCEL_OPTION);
+                    if (updateResult == JOptionPane.OK_OPTION) {
+                        try {
+                            String updateQuery = "UPDATE Passenger SET firstName = ?, lastName = ?, dateOfBirth = ?, gender = ?, nationality = ?, address = ?, phoneNum = ? WHERE passportNum = ?";
+                            PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
+                            updateStmt.setString(1, firstNameField.getText());
+                            updateStmt.setString(2, lastNameField.getText());
+                            updateStmt.setString(3, dobField.getText());
+                            updateStmt.setString(4, genderField.getText());
+                            updateStmt.setString(5, nationalityField.getText());
+                            updateStmt.setString(6, addressField.getText());
+                            updateStmt.setString(7, phoneNumField.getText());
+                            updateStmt.setString(8, passportNum);
+                            updateStmt.executeUpdate();
+    
+                            JOptionPane.showMessageDialog(this, "Passenger information updated successfully.");
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(this, "Passenger not found.");
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    
 
     public static void main(String[] args) {
         new EracleFrame();
