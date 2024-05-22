@@ -18,48 +18,35 @@ public class EracleFrame extends JFrame {
         // Initialize database connection
         initDBConnection();
 
-        // Show login window
-        addPassengerInfo();
-
         Container contentPane = getContentPane();
         contentPane.setBackground(EWHA_COLOR_1);
-        contentPane.setLayout(new FlowLayout());
+        contentPane.setLayout(new GridBagLayout());
 
-        JButton flightsButton = new JButton("Flights");
-        flightsButton.setFont(new Font("Monospaced", Font.BOLD, 15));
-        flightsButton.setBackground(EWHA_COLOR_2);
-        flightsButton.setOpaque(true);
-        flightsButton.addActionListener(new ActionListener() {
+        // Title label
+        JLabel titleLabel = new JLabel("Eracle Airline Reservation System");
+        titleLabel.setFont(new Font("Monospaced", Font.BOLD, 30));
+        titleLabel.setForeground(EWHA_COLOR_2);
+        
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new GridLayout(5, 1, 10, 10));  // 5 rows, 1 column, 10px padding
+        buttonPanel.setBackground(EWHA_COLOR_1);
+        
+        int padding = 20;
+        buttonPanel.setBorder(BorderFactory.createEmptyBorder(padding, padding, padding, padding));
+
+        JButton addPassengersButton = new JButton("Add Passenger");
+        addPassengersButton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        addPassengersButton.setBackground(EWHA_COLOR_2);
+        addPassengersButton.setOpaque(true);
+        addPassengersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                findFlights();
+                addPassengerInfo();
             }
         });
-
-        JButton cheapestFlightsButton = new JButton("Find Cheapest Flights");
-        cheapestFlightsButton.setFont(new Font("Monospaced", Font.BOLD, 15));
-        cheapestFlightsButton.setBackground(EWHA_COLOR_2);
-        cheapestFlightsButton.setOpaque(true);
-        cheapestFlightsButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                findCheapestFlightsByDate();
-            }
-        });
-
-        JButton reservationButton = new JButton("My Reservation");
-        reservationButton.setFont(new Font("Monospaced", Font.BOLD, 15));
-        reservationButton.setBackground(EWHA_COLOR_2);
-        reservationButton.setOpaque(true);
-        reservationButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-            	showMyReservation();
-            }
-        });
-
-        JButton updatePassengerButton = new JButton("Update Passenger Info"); // 승객 정보 수정 버튼 추가
-        updatePassengerButton.setFont(new Font("Monospaced", Font.BOLD, 15));
+        
+        JButton updatePassengerButton = new JButton("Update Passenger Info");
+        updatePassengerButton.setFont(new Font("Monospaced", Font.BOLD, 20));
         updatePassengerButton.setBackground(EWHA_COLOR_2);
         updatePassengerButton.setOpaque(true);
         updatePassengerButton.addActionListener(new ActionListener() {
@@ -69,10 +56,63 @@ public class EracleFrame extends JFrame {
             }
         });
 
-        contentPane.add(updatePassengerButton); // 승객 정보 수정 버튼 추가
-        contentPane.add(flightsButton);
-        contentPane.add(cheapestFlightsButton); // 최저가 조회 버튼 추가
-        contentPane.add(reservationButton);
+        JButton cheapestFlightsButton = new JButton("Find Cheapest Flights");
+        cheapestFlightsButton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        cheapestFlightsButton.setBackground(EWHA_COLOR_2);
+        cheapestFlightsButton.setOpaque(true);
+        cheapestFlightsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                findCheapestFlightsByDate();
+            }
+        });
+        
+        JButton flightsButton = new JButton("Make Reservations");
+        flightsButton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        flightsButton.setBackground(EWHA_COLOR_2);
+        flightsButton.setOpaque(true);
+        flightsButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                findFlights();
+            }
+        });
+
+        JButton reservationButton = new JButton("Cancel Reservation");
+        reservationButton.setFont(new Font("Monospaced", Font.BOLD, 20));
+        reservationButton.setBackground(EWHA_COLOR_2);
+        reservationButton.setOpaque(true);
+        reservationButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showMyReservation();
+            }
+        });
+
+        buttonPanel.add(addPassengersButton);
+        buttonPanel.add(updatePassengerButton);
+        buttonPanel.add(cheapestFlightsButton);
+        buttonPanel.add(flightsButton);
+        buttonPanel.add(reservationButton);
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        // Title constraints
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.insets = new Insets(20, 20, 20, 20); // padding around the title
+        contentPane.add(titleLabel, gbc);
+        
+        // Button panel constraints
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(padding, padding, padding, padding);
+        contentPane.add(buttonPanel, gbc);
 
         setSize(800, 600);
         setVisible(true);
