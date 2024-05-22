@@ -3,8 +3,7 @@ import java.sql.*;
 public class Reservation {
     public static void makeReservation(
     		Connection conn, 
-    		long reservationId, 
-    		String flightId, 
+    		String flightId,
     		long passengerId, 
     		String passengerNum, 
     		String reservationDateStr, 
@@ -13,7 +12,7 @@ public class Reservation {
     		boolean additionalBaggage, 
     		int totalPrice) throws SQLException {
         try {
-            insertIntoReservationTable(conn, reservationId, flightId, passengerId, passengerNum, reservationDateStr, classType, seatNum, additionalBaggage, totalPrice);
+            insertIntoReservationTable(conn, flightId, passengerId, passengerNum, reservationDateStr, classType, seatNum, additionalBaggage, totalPrice);
             // 좌석 가용성 업데이트
             updateSeatAvailability(conn, flightId, seatNum, true);
         } catch (SQLException e) {
@@ -60,8 +59,7 @@ public class Reservation {
     
     private static void insertIntoReservationTable(
     		Connection conn, 
-    		long reservationId, 
-    		String flightId, 
+    		String flightId,
     		long passengerId, 
     		String passengerNum, 
     		String reservationDateStr, 
@@ -69,19 +67,18 @@ public class Reservation {
     		int seatNum, 
     		boolean additionalBaggage, 
     		int totalPrice) throws SQLException {
-        String sql = "INSERT INTO Reservation (reservationId, flightId, passengerId, passengerNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Reservation (flightId, passengerId, passengerNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pStmt = conn.prepareStatement(sql)) {
             // 값 설정
-            pStmt.setLong(1, reservationId);
-            pStmt.setString(2, flightId);
-            pStmt.setLong(3, passengerId);
-            pStmt.setString(4, passengerNum);
-            pStmt.setTimestamp(5, Timestamp.valueOf(reservationDateStr));
-            pStmt.setString(6, classType);
-            pStmt.setInt(7, seatNum);
-            pStmt.setBoolean(8, additionalBaggage);
-            pStmt.setInt(9, totalPrice);
+            pStmt.setString(1, flightId);
+            pStmt.setLong(2, passengerId);
+            pStmt.setString(3, passengerNum);
+            pStmt.setTimestamp(4, Timestamp.valueOf(reservationDateStr));
+            pStmt.setString(5, classType);
+            pStmt.setInt(6, seatNum);
+            pStmt.setBoolean(7, additionalBaggage);
+            pStmt.setInt(8, totalPrice);
 
             // 쿼리 실행
             int rowsInserted = pStmt.executeUpdate();

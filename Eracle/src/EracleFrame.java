@@ -218,6 +218,7 @@ public class EracleFrame extends JFrame {
 
     private void makeReservation(String flightId) {
         JTextField passengerIdField = new JTextField(20);
+        JTextField passportIdField = new JTextField(20);
         JTextField classTypeField = new JTextField(20);
         JTextField seatNumField = new JTextField(20);
         JCheckBox additionalBaggageField = new JCheckBox("Additional Baggage");
@@ -225,6 +226,8 @@ public class EracleFrame extends JFrame {
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Passenger ID:"));
         panel.add(passengerIdField);
+        panel.add(new JLabel("Passport ID:"));
+        panel.add(passportIdField);
         panel.add(new JLabel("Class Type:"));
         panel.add(classTypeField);
         panel.add(new JLabel("Seat Number:"));
@@ -234,15 +237,16 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Make Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "INSERT INTO Reservation (flightId, passengerId, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)";
+                String query = "INSERT INTO Reservation (flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, flightId);
                 stmt.setLong(2, Long.parseLong(passengerIdField.getText()));
-                stmt.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
-                stmt.setString(4, classTypeField.getText());
-                stmt.setInt(5, Integer.parseInt(seatNumField.getText()));
-                stmt.setBoolean(6, additionalBaggageField.isSelected());
-                stmt.setInt(7, calculateTotalPrice(flightId, classTypeField.getText(), additionalBaggageField.isSelected()));
+                stmt.setString(3, passportIdField.getText());
+                stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
+                stmt.setString(5, classTypeField.getText());
+                stmt.setInt(6, Integer.parseInt(seatNumField.getText()));
+                stmt.setBoolean(7, additionalBaggageField.isSelected());
+                stmt.setInt(8, calculateTotalPrice(flightId, classTypeField.getText(), additionalBaggageField.isSelected()));
                 stmt.executeUpdate();
                 JOptionPane.showMessageDialog(this, "Reservation made successfully.");
             } catch (SQLException e) {
