@@ -1,4 +1,5 @@
-DROP TABLE `Seat`;
+DROP VIEW `Seat`;
+DROP TABLE `PassengerSeat`;
 DROP TABLE `Reservation`;
 DROP TABLE `Flight`;
 DROP TABLE `Aircraft`;

@@ -56,15 +56,22 @@ CREATE TABLE Passenger (
 );
 CREATE INDEX passportNum_Index ON Passenger(passportNum);
 
-CREATE TABLE Seat (
+CREATE TABLE PassengerSeat (
     seatId BIGINT NOT NULL,
     flightId VARCHAR(10) NOT NULL,
     seatNum INT NOT NULL,
     isAvailable BOOLEAN NOT NULL,
+    passengerId BIGINT, 
     PRIMARY KEY (seatId),
-    FOREIGN KEY (flightId) REFERENCES Flight (flightId)
+    FOREIGN KEY (flightId) REFERENCES Flight (flightId),
+    FOREIGN KEY (passengerId) REFERENCES Passenger (passengerId)
 );
-CREATE INDEX seatNumIndex ON Seat(seatNum);
+CREATE INDEX seatNumIndex ON PassengerSeat(seatNum);
+
+CREATE VIEW Seat AS 
+    SELECT seatId, flightId, seatNum, isAvailable
+    FROM PassengerSeat
+;
 
 CREATE TABLE Reservation (
     reservationId BIGINT NOT NULL AUTO_INCREMENT,

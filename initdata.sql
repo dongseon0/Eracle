@@ -57,7 +57,6 @@ VALUES
     ('KE410', 'ICN', 'FRA', 310, '2024-06-05 12:00:00', '2024-06-05 18:00:00', 'Korean Air', 720000),
     ('KL200', 'ICN', 'AMS', 301, '2024-06-05 13:00:00', '2024-06-05 19:00:00', 'KLM Royal Dutch Airlines', 560000);
 
-
 INSERT INTO Passenger (passengerId, passportNum, firstName, lastName, gender, nationality, address, phoneNum, dateOfBirth)
 VALUES
     (10001, 'AT1M43', 'Alan', 'Turing', 'Male', 'England', '123 Main Street, London, England', '4499-1111-0111', '1943-01-01'),
@@ -76,32 +75,37 @@ VALUES
     (10014, 'LM6F92', 'Lily', 'Chen', 'Female', 'China', '456 Lotus Lane, Beijing, China', '8610-1234-5678', '1992-02-14'),
     (10015, 'SS7M77', 'Sebastian', 'Schmidt', 'Male', 'Germany', '789 Forest Road, Berlin, Germany', '4915-9999-8888', '1977-03-15');
    
-INSERT INTO Seat (seatId, flightId, seatNum, isAvailable)
+INSERT INTO PassengerSeat (seatId, flightId, seatNum, isAvailable, passengerId)
 VALUES
-    (501, 'BA401', 13, TRUE),
-    (502, 'AA402', 2, TRUE),
-    (503, 'JL403', 54, TRUE),
-    (504, 'CA404', 7, TRUE),
-    (505, 'QF405', 1, TRUE),
-    (506, 'AC406', 38, TRUE),
-    (507, 'BA401', 14, TRUE),
-    (508, 'AA402', 3, TRUE),
-    (509, 'JL403', 55, TRUE),
-    (510, 'CA404', 8, TRUE),
-    (511, 'QF405', 2, TRUE),
-    (512, 'AC406', 39, TRUE),
-    (513, 'KE407', 21, TRUE),
-    (514, 'KE407', 22, TRUE),
-    (515, 'OZ408', 31, TRUE),
-    (516, 'OZ408', 32, TRUE);
+    (501, 'AA402', 1, TRUE, NULL),
+    (502, 'AA402', 2, FALSE, 10003),
+    (503, 'AA402', 3, TRUE, NULL),
+    (504, 'AA402', 4, TRUE, NULL),
+    (505, 'AA402', 5, FALSE, 10013),
+    (506, 'KE407', 1, FALSE, 10002),
+    (507, 'KE407', 2, TRUE, NULL),
+    (508, 'KE407', 3, TRUE, NULL),
+    (509, 'KE407', 4, TRUE, NULL),
+    (510, 'KE407', 5, FALSE, 10009),
+    (511, 'KE409', 1, TRUE, NULL),
+    (512, 'BA401', 2, FALSE, 10001),
+    (513, 'AA402', 3, FALSE, 10003),
+    (514, 'JL403', 4, FALSE, 10010),
+    (515, 'CA404', 2, FALSE, 10004),
+    (516, 'QF405', 5, FALSE, 10014),
+    (517, 'AC406', 2, FALSE, 10007),
+    (518, 'OZ408', 5, FALSE, 10008);
 
 INSERT INTO Reservation (reservationId, flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice)
 VALUES
-    (20001, 'BA401', 10001, 'AT1M43', '2024-06-01', 'bu', 13, false, 540000),
-    (20002, 'AA402', 10003, 'JV3M76', '2024-06-05', 'eco', 2, true, 200000),
-    (20003, 'JL403', 10010, 'SJ2M10', '2024-06-08', 'eco', 54, false, 180000),
-    (20004, 'CA404', 10004, 'TB1M88', '2024-07-01', 'bu', 7, true, 480000),
-    (20005, 'QF405', 10014, 'LM6F92', '2024-07-04', 'eco', 1, false, 730000),
-    (20006, 'AC406', 10007, 'ED4M87', '2024-08-24', 'bu', 38, true, 1300000),
-    (20007, 'KE407', 10002, 'GH2F66', '2024-06-01', 'eco', 21, false, 650000),
-    (20008, 'OZ408', 10008, 'MM2M91', '2024-06-05', 'eco', 31, true, 620000);
+    (20001, 'BA401', 10001, 'AT1M43', '2024-06-01', 'bu', 1, FALSE, 540000),
+    (20002, 'AA402', 10003, 'JV3M76', '2024-06-05', 'eco', 2, TRUE, 200000),
+    (20003, 'JL403', 10010, 'SJ2M10', '2024-06-08', 'eco', 54, FALSE, 180000),
+    (20004, 'CA404', 10004, 'TB1M88', '2024-07-01', 'bu', 7, TRUE, 480000),
+    (20005, 'QF405', 10014, 'LM6F92', '2024-07-04', 'eco', 1, FALSE, 730000),
+    (20006, 'AC406', 10007, 'ED4M87', '2024-08-24', 'bu', 38, TRUE, 1300000),
+    (20007, 'KE407', 10002, 'GH2F66', '2024-06-01', 'eco', 1, FALSE, 650000),
+    (20008, 'OZ408', 10008, 'MM2M91', '2024-06-05', 'eco', 31, TRUE, 620000),
+    (20009, 'AA402', 10013, 'EM5F98', '2024-06-05', 'bu', 5, TRUE, 200000),
+    (20010, 'KE407', 10009, 'LT5M03', '2024-06-01', 'eco', 5, FALSE, 650000);
+    
