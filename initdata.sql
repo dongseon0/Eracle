@@ -47,6 +47,7 @@ INSERT INTO Flight (flightId, departureAirportId, arrivalAirportId, aircraftId, 
 VALUES
     ('BA401', 'ICN', 'LHR', 301, '2024-06-01 10:00:00', '2024-06-01 14:00:00', 'British Airways', 540000),
     ('AA402', 'ICN', 'JFK', 302, '2024-06-05 08:00:00', '2024-06-05 12:00:00', 'American Airlines', 200000),
+    ('KE402', 'ICN', 'JFK', 302, '2024-06-05 17:00:00', '2024-06-05 21:00:00', 'Korean Air', 600000),
     ('JL403', 'ICN', 'HND', 303, '2024-06-08 16:00:00', '2024-06-08 20:00:00', 'Japan Airlines', 180000),
     ('CA404', 'ICN', 'PEK', 304, '2024-07-01 06:00:00', '2024-07-01 10:00:00', 'Air China', 480000),
     ('QF405', 'ICN', 'SYD', 305, '2024-07-04 13:00:00', '2024-07-04 17:00:00', 'Qantas', 730000),
@@ -89,12 +90,11 @@ VALUES
     (510, 'KE407', 5, FALSE, 10009),
     (511, 'KE409', 1, TRUE, NULL),
     (512, 'BA401', 2, FALSE, 10001),
-    (513, 'AA402', 3, FALSE, 10003),
-    (514, 'JL403', 4, FALSE, 10010),
-    (515, 'CA404', 2, FALSE, 10004),
-    (516, 'QF405', 5, FALSE, 10014),
-    (517, 'AC406', 2, FALSE, 10007),
-    (518, 'OZ408', 5, FALSE, 10008);
+    (513, 'JL403', 4, FALSE, 10010),
+    (514, 'CA404', 2, FALSE, 10004),
+    (515, 'QF405', 5, FALSE, 10014),
+    (516, 'AC406', 2, FALSE, 10007),
+    (517, 'OZ408', 5, FALSE, 10008);
 
 INSERT INTO Reservation (reservationId, flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice)
 VALUES
@@ -108,4 +108,3 @@ VALUES
     (20008, 'OZ408', 10008, 'MM2M91', '2024-06-05', 'eco', 31, TRUE, 620000),
     (20009, 'AA402', 10013, 'EM5F98', '2024-06-05', 'bu', 5, TRUE, 200000),
     (20010, 'KE407', 10009, 'LT5M03', '2024-06-01', 'eco', 5, FALSE, 650000);
-    
