@@ -54,7 +54,7 @@ public class EracleFrame extends JFrame {
         reservationButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                checkReservation();
+            	showMyReservation();
             }
         });
 
@@ -271,29 +271,52 @@ public class EracleFrame extends JFrame {
         return basePrice * classMultiplier + baggageFee;
     }
 
-    private void checkReservation() {
-        JTextField reservationIdField = new JTextField(20);
-
+    private void showMyReservation() {
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Reservation ID:"));
-        panel.add(reservationIdField);
-
-        int result = JOptionPane.showConfirmDialog(this, panel, "Check Reservation", JOptionPane.OK_CANCEL_OPTION);
+        JTextField passportNumField = new JTextField(20);
+        
+        panel.add(new JLabel("Your Passport Number:"));
+        panel.add(passportNumField);
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            try {
-                String query = "SELECT * FROM Reservation WHERE reservationId = ?";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setLong(1, Long.parseLong(reservationIdField.getText()));
-                ResultSet rs = stmt.executeQuery();
-
-                if (rs.next()) {
-                    String reservationDetails = "Flight ID: " + rs.getString("flightId") + ", Passenger ID: " + rs.getLong("passengerId") + ", Seat Number: " + rs.getInt("seatNum");
-                    int response = JOptionPane.showConfirmDialog(this, reservationDetails, "Delete Reservation?", JOptionPane.YES_NO_OPTION);
-                    if (response == JOptionPane.YES_OPTION) {
-                        deleteReservation(rs.getLong("reservationId"));
+            String query = "SELECT flightId, reservationDate, classType, seatNum, additionalBaggage " +
+                           "FROM Passenger, Reservation " +
+                           "WHERE Passenger.passengerId = Reservation.passengerId " +
+                           "AND Passenger.passportNum = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.setString(1, passportNumField.getText());
+                try (ResultSet rs = stmt.executeQuery()) {
+                    List<String> myReservations = new ArrayList<>();
+                    while (rs.next()) {
+                        myReservations.add("Flight ID: " + rs.getString("flightId") + 
+                                           ", Reservation Date: " + rs.getDate("reservationDate") + 
+                                           ", Class Type: " + rs.getString("classType") + 
+                                           ", Seat Number: " + rs.getInt("seatNum") + 
+                                           ", Additional Baggage: " + rs.getBoolean("additionalBaggage"));
                     }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Reservation not found.");
+
+                    if (myReservations.isEmpty()) {
+                        JOptionPane.showMessageDialog(this, "No flights found for the passenger.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JPanel displayPanel = new JPanel(new BorderLayout());
+                        JList<String> list = new JList<>(myReservations.toArray(new String[0]));
+                        JScrollPane scrollPane = new JScrollPane(list);
+                        scrollPane.setPreferredSize(new Dimension(400, 200));
+                        
+                        JTextField flightIdField = new JTextField(20);
+                        JPanel inputPanel = new JPanel(new GridLayout(0, 1));
+                        inputPanel.add(new JLabel("Enter Flight ID to delete reservation:"));
+                        inputPanel.add(flightIdField);
+                        
+                        displayPanel.add(scrollPane, BorderLayout.CENTER);
+                        displayPanel.add(inputPanel, BorderLayout.SOUTH);
+
+                        int deleteResult = JOptionPane.showConfirmDialog(this, displayPanel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
+                        if (deleteResult == JOptionPane.OK_OPTION) {
+                            deleteReservationByFlightId(passportNumField.getText(), flightIdField.getText());
+                        }
+                    }
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -301,15 +324,23 @@ public class EracleFrame extends JFrame {
         }
     }
 
-    private void deleteReservation(long reservationId) {
-        try {
-        	Reservation.deleteReservation(conn, reservationId);
-            JOptionPane.showMessageDialog(this, "Reservation deleted successfully.");
+    private void deleteReservationByFlightId(String passportNum, String flightId) {
+        String query = "DELETE FROM Reservation " +
+                       "WHERE passengerId = (SELECT passengerId FROM Passenger WHERE passportNum = ?) " +
+                       "AND flightId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, passportNum);
+            stmt.setString(2, flightId);
+            int rowsAffected = stmt.executeUpdate();
+            if (rowsAffected > 0) {
+                JOptionPane.showMessageDialog(this, "Reservation deleted successfully.");
+            } else {
+                JOptionPane.showMessageDialog(this, "No reservation found for the given flight ID.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
 
     private void updatePassengerInfo() {
         JTextField passportNumField = new JTextField(20);
