@@ -185,27 +185,47 @@ public class EracleFrame extends JFrame {
     private void findFlights() {
         JTextField arrivalAirportField = new JTextField(20);
         JTextField departureDateField = new JTextField(20);
-    
+
         JPanel panel = new JPanel(new GridLayout(0, 1));
         panel.add(new JLabel("Arrival Airport ID:"));
         panel.add(arrivalAirportField);
         panel.add(new JLabel("Departure Date (YYYY-MM-DD):"));
         panel.add(departureDateField);
-    
+
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "SELECT * FROM Flight WHERE arrivalAirportId = ? AND DATE(departureTime) = ?";
+                String query = "SELECT f.flightId, f.departureTime, f.arrivalTime, s.seatNum " +
+                               "FROM Flight f, Seat s " +
+                               "WHERE f.flightId = s.flightId AND f.arrivalAirportId = ? AND DATE(f.departureTime) = ?" + 
+                               "AND s.isAvailable = True";
                 PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, arrivalAirportField.getText());  // Changed from setLong to setString
+                stmt.setString(1, arrivalAirportField.getText());
                 stmt.setDate(2, java.sql.Date.valueOf(departureDateField.getText()));
                 ResultSet rs = stmt.executeQuery();
-    
+
                 List<String> flights = new ArrayList<>();
+                String currentFlightId = null;
+                StringBuilder currentFlightInfo = new StringBuilder();
                 while (rs.next()) {
-                    flights.add("Flight ID: " + rs.getString("flightId") + ", Departure: " + rs.getTimestamp("departureTime") + ", Arrival: " + rs.getTimestamp("arrivalTime"));
+                    String flightId = rs.getString("flightId");
+                    if (!flightId.equals(currentFlightId)) {
+                        if (currentFlightId != null) {
+                            flights.add(currentFlightInfo.toString());
+                        }
+                        currentFlightId = flightId;
+                        currentFlightInfo.setLength(0);
+                        currentFlightInfo.append("Flight ID: ").append(flightId)
+                                         .append(", Departure: ").append(rs.getTimestamp("departureTime"))
+                                         .append(", Arrival: ").append(rs.getTimestamp("arrivalTime"))
+                                         .append(", Available Seats: ");
+                    }
+                    currentFlightInfo.append(rs.getString("seatNum")).append(" ");
                 }
-    
+                if (currentFlightId != null) {
+                    flights.add(currentFlightInfo.toString());
+                }
+
                 if (flights.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No flights found.");
                 } else {
