@@ -1,6 +1,59 @@
 import java.sql.*;
 
 public class Passenger {
+    public static Long getPassengerId(
+    		Connection conn,
+    		String passportNum) throws SQLException {
+        String passengerIdQuery = "SELECT passengerId FROM Passenger WHERE passportNum = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(passengerIdQuery)) {
+            stmt.setString(1, passportNum);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getLong("passengerId");
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+    
+    public static boolean checkPassenger(
+    		Connection conn,
+    		String passportNum) throws SQLException {
+    	String checkPassengerQuery = "SELECT * FROM Passenger WHERE passportNum = ?";
+        PreparedStatement stmt = conn.prepareStatement(checkPassengerQuery);
+        stmt.setString(1, passportNum);
+        try (ResultSet rs = stmt.executeQuery()) {
+        	return true;
+        }
+    }
+    
+
+    public static boolean updatePassenger(
+    		Connection conn, 
+    		String passportNum,
+    		String firstName, 
+    		String lastName, 
+    		String dateOfBirth, 
+    		String gender, 
+    		String nationality, 
+    		String address, 
+    		String phoneNum) throws SQLException {
+        String updateQuery = "UPDATE Passenger SET firstName = ?, lastName = ?, dateOfBirth = ?, gender = ?, nationality = ?, address = ?, phoneNum = ? WHERE passportNum = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
+            stmt.setString(1, firstName);
+            stmt.setString(2, lastName);
+            stmt.setString(3, dateOfBirth);
+            stmt.setString(4, gender);
+            stmt.setString(5, nationality);
+            stmt.setString(6, address);
+            stmt.setString(7, phoneNum);
+            stmt.setString(8, passportNum);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+	
     public static void insertPassenger(
     		Connection conn, 
     		String passportNum,

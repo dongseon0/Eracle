@@ -6,6 +6,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 public class EracleFrame extends JFrame {
     public static final Color EWHA_COLOR_1 = new Color(80, 149, 98);
     public static final Color EWHA_COLOR_2 = new Color(255, 253, 241);
@@ -41,7 +46,7 @@ public class EracleFrame extends JFrame {
         addPassengersButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                addPassengerInfo();
+                addPassenger();
             }
         });
         
@@ -117,7 +122,6 @@ public class EracleFrame extends JFrame {
         setSize(800, 600);
         setVisible(true);
     }
-    
 
     // DB Connection initialization
     private void initDBConnection() {
@@ -133,7 +137,7 @@ public class EracleFrame extends JFrame {
     }
 
 
-    private void addPassengerInfo() {
+    private void addPassenger() {
         // Implement logic to add passenger information
     	JTextField passportNumField = new JTextField(20);
         JTextField firstNameField = new JTextField(20);
@@ -145,7 +149,7 @@ public class EracleFrame extends JFrame {
         JTextField phoneNumField = new JTextField(20);
 
         JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Passport Num:"));
+        panel.add(new JLabel("Passport Number:"));
         panel.add(passportNumField);
         panel.add(new JLabel("First Name:"));
         panel.add(firstNameField);
@@ -195,37 +199,7 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "SELECT f.flightId, f.departureTime, f.arrivalTime, s.seatNum " +
-                               "FROM Flight f, Seat s " +
-                               "WHERE f.flightId = s.flightId AND f.arrivalAirportId = ? AND DATE(f.departureTime) = ?" + 
-                               "AND s.isAvailable = True";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setString(1, arrivalAirportField.getText());
-                stmt.setDate(2, java.sql.Date.valueOf(departureDateField.getText()));
-                ResultSet rs = stmt.executeQuery();
-
-                List<String> flights = new ArrayList<>();
-                String currentFlightId = null;
-                StringBuilder currentFlightInfo = new StringBuilder();
-                while (rs.next()) {
-                    String flightId = rs.getString("flightId");
-                    if (!flightId.equals(currentFlightId)) {
-                        if (currentFlightId != null) {
-                            flights.add(currentFlightInfo.toString());
-                        }
-                        currentFlightId = flightId;
-                        currentFlightInfo.setLength(0);
-                        currentFlightInfo.append("Flight ID: ").append(flightId)
-                                         .append(", Departure: ").append(rs.getTimestamp("departureTime"))
-                                         .append(", Arrival: ").append(rs.getTimestamp("arrivalTime"))
-                                         .append(", Available Seats: ");
-                    }
-                    currentFlightInfo.append(rs.getString("seatNum")).append(" ");
-                }
-                if (currentFlightId != null) {
-                    flights.add(currentFlightInfo.toString());
-                }
-
+                List<String> flights = Flight.getFlightsWithAvailableSeats(conn, arrivalAirportField.getText(), departureDateField.getText());
                 if (flights.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No flights found.");
                 } else {
@@ -238,8 +212,7 @@ public class EracleFrame extends JFrame {
                 e.printStackTrace();
             }
         }
-    }
-    
+    }    
     
     private void findCheapestFlightsByDate() {
         JTextField departureDateField = new JTextField(20);
@@ -251,25 +224,11 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Cheapest Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "SELECT airline, arrivalAirportId, MIN(flightPrice) AS MinPrice " +
-                               "FROM Flight " +
-                               "WHERE DATE(departureTime) = ? " +
-                               "GROUP BY airline, arrivalAirportId";
-                PreparedStatement stmt = conn.prepareStatement(query);
-                stmt.setDate(1, java.sql.Date.valueOf(departureDateField.getText()));
-                ResultSet rs = stmt.executeQuery();
-
-                List<String> flights = new ArrayList<>();
-                while (rs.next()) {
-                    flights.add("Airline: " + rs.getString("airline") + 
-                    		    ", Airport ID: " + rs.getString("arrivalAirportId") + 
-                    		    ", Minimum Price: $" + rs.getDouble("MinPrice"));
-                }
-
+                List<String> flights = Flight.getCheapestFlightsByDate(conn, departureDateField.getText());
                 if (flights.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No flights found for the selected date.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, new JList(flights.toArray()), "Cheapest Flights", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, new JList<>(flights.toArray()), "Cheapest Flights", JOptionPane.INFORMATION_MESSAGE);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -296,66 +255,21 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Make Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                // Retrieve passenger ID
-                Long passengerId = getPassengerId(passportNumField.getText());
+                Long passengerId = Passenger.getPassengerId(conn, passportNumField.getText());
                 if (passengerId == null) {
                     JOptionPane.showMessageDialog(this, "Passenger not found. Please check the passport number.");
                     return;
                 }
-
-                // Insert reservation
-                String query = "INSERT INTO Reservation (flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) " +
-                               "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-                try (PreparedStatement stmt = conn.prepareStatement(query)) {
-                    stmt.setString(1, flightId);
-                    stmt.setLong(2, passengerId);
-                    stmt.setString(3, passportNumField.getText());
-                    stmt.setTimestamp(4, new Timestamp(System.currentTimeMillis()));
-                    stmt.setString(5, classTypeField.getText());
-                    stmt.setInt(6, Integer.parseInt(seatNumField.getText()));
-                    stmt.setBoolean(7, additionalBaggageField.isSelected());
-                    stmt.setInt(8, calculateTotalPrice(flightId, classTypeField.getText(), additionalBaggageField.isSelected()));
-                    stmt.executeUpdate();
+                boolean reservationSuccess = Reservation.makeReservation(conn, flightId, passengerId, passportNumField.getText(), 
+                														new Timestamp(System.currentTimeMillis()), classTypeField.getText(), 
+                														Integer.parseInt(seatNumField.getText()), additionalBaggageField.isSelected());
+                if (reservationSuccess) {
                     JOptionPane.showMessageDialog(this, "Reservation made successfully.");
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
-    }
-
-    private Long getPassengerId(String passportNum) throws SQLException {
-        String passengerIdQuery = "SELECT passengerId FROM Passenger WHERE passportNum = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(passengerIdQuery)) {
-            stmt.setString(1, passportNum);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getLong("passengerId");
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
-
-    private int calculateTotalPrice(String flightId, String classType, boolean additionalBaggage) {
-        int basePrice = 0;
-        try {
-            String query = "SELECT flightPrice FROM Flight WHERE flightId = ?";
-            PreparedStatement stmt = conn.prepareStatement(query);
-            stmt.setString(1, flightId);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                basePrice = rs.getInt("flightPrice");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        int classMultiplier = "First".equalsIgnoreCase(classType) ? 3 : ("Business".equalsIgnoreCase(classType) ? 2 : 1);
-        int baggageFee = additionalBaggage ? 50 : 0;
-
-        return basePrice * classMultiplier + baggageFee;
     }
 
     private void showMyReservation() {
@@ -367,41 +281,31 @@ public class EracleFrame extends JFrame {
         
         int result = JOptionPane.showConfirmDialog(this, panel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            String query = "SELECT flightId, reservationDate, classType, seatNum, additionalBaggage " +
-                           "FROM Passenger, Reservation " +
-                           "WHERE Passenger.passengerId = Reservation.passengerId " +
-                           "AND Passenger.passportNum = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setString(1, passportNumField.getText());
-                try (ResultSet rs = stmt.executeQuery()) {
-                    List<String> myReservations = new ArrayList<>();
-                    while (rs.next()) {
-                        myReservations.add("Flight ID: " + rs.getString("flightId") + 
-                                           ", Reservation Date: " + rs.getDate("reservationDate") + 
-                                           ", Class Type: " + rs.getString("classType") + 
-                                           ", Seat Number: " + rs.getInt("seatNum") + 
-                                           ", Additional Baggage: " + rs.getBoolean("additionalBaggage"));
-                    }
+            try {
+                List<String> myReservations = Reservation.getReservationsByPassportNum(conn, passportNumField.getText());
+                if (myReservations.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No flights found for the passenger.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JPanel displayPanel = new JPanel(new BorderLayout());
+                    JList<String> list = new JList<>(myReservations.toArray(new String[0]));
+                    JScrollPane scrollPane = new JScrollPane(list);
+                    scrollPane.setPreferredSize(new Dimension(400, 200));
+                    
+                    JTextField flightIdField = new JTextField(20);
+                    JPanel inputPanel = new JPanel(new GridLayout(0, 1));
+                    inputPanel.add(new JLabel("Enter Flight ID to delete reservation:"));
+                    inputPanel.add(flightIdField);
+                    
+                    displayPanel.add(scrollPane, BorderLayout.CENTER);
+                    displayPanel.add(inputPanel, BorderLayout.SOUTH);
 
-                    if (myReservations.isEmpty()) {
-                        JOptionPane.showMessageDialog(this, "No flights found for the passenger.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
-                    } else {
-                        JPanel displayPanel = new JPanel(new BorderLayout());
-                        JList<String> list = new JList<>(myReservations.toArray(new String[0]));
-                        JScrollPane scrollPane = new JScrollPane(list);
-                        scrollPane.setPreferredSize(new Dimension(400, 200));
-                        
-                        JTextField flightIdField = new JTextField(20);
-                        JPanel inputPanel = new JPanel(new GridLayout(0, 1));
-                        inputPanel.add(new JLabel("Enter Flight ID to delete reservation:"));
-                        inputPanel.add(flightIdField);
-                        
-                        displayPanel.add(scrollPane, BorderLayout.CENTER);
-                        displayPanel.add(inputPanel, BorderLayout.SOUTH);
-
-                        int deleteResult = JOptionPane.showConfirmDialog(this, displayPanel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
-                        if (deleteResult == JOptionPane.OK_OPTION) {
-                            deleteReservationByFlightId(passportNumField.getText(), flightIdField.getText());
+                    int deleteResult = JOptionPane.showConfirmDialog(this, displayPanel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
+                    if (deleteResult == JOptionPane.OK_OPTION) {
+                        int rowsAffected = Reservation.deleteReservationByFlightId(conn, passportNumField.getText(), flightIdField.getText());
+                        if (rowsAffected > 0) {
+                            JOptionPane.showMessageDialog(this, "Reservation deleted successfully.");
+                        } else {
+                            JOptionPane.showMessageDialog(this, "No reservation found for the given flight ID.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }
                 }
@@ -410,24 +314,7 @@ public class EracleFrame extends JFrame {
             }
         }
     }
-
-    private void deleteReservationByFlightId(String passportNum, String flightId) {
-        String query = "DELETE FROM Reservation " +
-                       "WHERE passengerId = (SELECT passengerId FROM Passenger WHERE passportNum = ?) " +
-                       "AND flightId = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-            stmt.setString(1, passportNum);
-            stmt.setString(2, flightId);
-            int rowsAffected = stmt.executeUpdate();
-            if (rowsAffected > 0) {
-                JOptionPane.showMessageDialog(this, "Reservation deleted successfully.");
-            } else {
-                JOptionPane.showMessageDialog(this, "No reservation found for the given flight ID.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
+    
 
     private void updatePassengerInfo() {
         JTextField passportNumField = new JTextField(20);
@@ -439,7 +326,7 @@ public class EracleFrame extends JFrame {
         int searchResult = JOptionPane.showConfirmDialog(this, searchPanel, "Search Passenger", JOptionPane.OK_CANCEL_OPTION);
         if (searchResult == JOptionPane.OK_OPTION) {
             try {
-                String passportNum = passportNumField.getText();
+            	String passportNum = passportNumField.getText();
                 String query = "SELECT * FROM Passenger WHERE passportNum = ?";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, passportNum);
@@ -473,19 +360,13 @@ public class EracleFrame extends JFrame {
                     int updateResult = JOptionPane.showConfirmDialog(this, updatePanel, "Update Passenger Info", JOptionPane.OK_CANCEL_OPTION);
                     if (updateResult == JOptionPane.OK_OPTION) {
                         try {
-                            String updateQuery = "UPDATE Passenger SET firstName = ?, lastName = ?, dateOfBirth = ?, gender = ?, nationality = ?, address = ?, phoneNum = ? WHERE passportNum = ?";
-                            PreparedStatement updateStmt = conn.prepareStatement(updateQuery);
-                            updateStmt.setString(1, firstNameField.getText());
-                            updateStmt.setString(2, lastNameField.getText());
-                            updateStmt.setString(3, dobField.getText());
-                            updateStmt.setString(4, genderField.getText());
-                            updateStmt.setString(5, nationalityField.getText());
-                            updateStmt.setString(6, addressField.getText());
-                            updateStmt.setString(7, phoneNumField.getText());
-                            updateStmt.setString(8, passportNum);
-                            updateStmt.executeUpdate();
-    
-                            JOptionPane.showMessageDialog(this, "Passenger information updated successfully.");
+                        	if (Passenger.updatePassenger(
+                        			conn, firstNameField.getText(), lastNameField.getText(),
+                        			dobField.getText(), genderField.getText(), nationalityField.getText(),
+                        			addressField.getText(), phoneNumField.getText(), passportNum) == true)
+                        		JOptionPane.showMessageDialog(this, "Passenger information updated successfully.");
+                        	else 
+                        		JOptionPane.showMessageDialog(this, "Passenger information update failed.");
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
