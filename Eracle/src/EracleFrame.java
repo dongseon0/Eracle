@@ -251,17 +251,19 @@ public class EracleFrame extends JFrame {
         int result = JOptionPane.showConfirmDialog(this, panel, "Find Cheapest Flights", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
-                String query = "SELECT airline, MIN(flightPrice) AS MinPrice " +
+                String query = "SELECT airline, arrivalAirportId, MIN(flightPrice) AS MinPrice " +
                                "FROM Flight " +
                                "WHERE DATE(departureTime) = ? " +
-                               "GROUP BY airline";
+                               "GROUP BY airline, arrivalAirportId";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setDate(1, java.sql.Date.valueOf(departureDateField.getText()));
                 ResultSet rs = stmt.executeQuery();
 
                 List<String> flights = new ArrayList<>();
                 while (rs.next()) {
-                    flights.add("Airline: " + rs.getString("airline") + ", Minimum Price: $" + rs.getDouble("MinPrice"));
+                    flights.add("Airline: " + rs.getString("airline") + 
+                    		    ", Airport ID: " + rs.getString("arrivalAirportId") + 
+                    		    ", Minimum Price: $" + rs.getDouble("MinPrice"));
                 }
 
                 if (flights.isEmpty()) {
