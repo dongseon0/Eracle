@@ -13,7 +13,8 @@ Eracle Airline Reservation System is a Java application designed to manage airli
 
 
 ## Entity-Relationship Diagram (ERD)
-(ERD 사진 첨부 필요) - 은비님 ERD 확인 완료 후 수정해주세요!
+![Eracle_ERD](https://github.com/dongseon0/Eracle/assets/108458468/db59d1a2-e500-40d0-ba84-3bd7a2ac6a3d)
+
 
 ## More Information
 - **Language**: Java, MySQL
