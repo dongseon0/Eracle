@@ -1,42 +1,37 @@
 import java.sql.*;
 
 public class Passenger {
-    public static Long getPassengerId(
-    		Connection conn,
-    		String passportNum) throws SQLException {
+
+    // Method to get passenger ID based on passport number
+    public static Long getPassengerId(Connection conn, String passportNum) throws SQLException {
         String passengerIdQuery = "SELECT passengerId FROM Passenger WHERE passportNum = ?";
         try (PreparedStatement stmt = conn.prepareStatement(passengerIdQuery)) {
             stmt.setString(1, passportNum);
             try (ResultSet rs = stmt.executeQuery()) {
+                // If a passenger with the given passport number is found, return their ID
                 if (rs.next()) {
                     return rs.getLong("passengerId");
                 } else {
-                    return null;
+                    return null; // Return null if no passenger is found
                 }
             }
         }
     }
-    
-    public static boolean checkPassenger(
-    		Connection conn,
-    		String passportNum) throws SQLException {
-    	String checkPassengerQuery = "SELECT * FROM Passenger WHERE passportNum = ?";
+
+    // Method to check if a passenger exists based on passport number
+    public static boolean checkPassenger(Connection conn, String passportNum) throws SQLException {
+        String checkPassengerQuery = "SELECT * FROM Passenger WHERE passportNum = ?";
         PreparedStatement stmt = conn.prepareStatement(checkPassengerQuery);
         stmt.setString(1, passportNum);
         try (ResultSet rs = stmt.executeQuery()) {
-        	return true;
+            return rs.next(); // Return true if a result is found, false otherwise
         }
     }
-    
 
-  
-    public static boolean updatePassengerAttribute(
-        Connection conn, 
-        String passportNum,
-        String selectedAttribute,
-        String newValue
-    ) throws SQLException {
+    // Method to update a passenger's attribute based on their passport number
+    public static boolean updatePassengerAttribute(Connection conn, String passportNum, String selectedAttribute, String newValue) throws SQLException {
         String updateQuery = "";
+        // Build the appropriate SQL update query based on the selected attribute
         switch (selectedAttribute) {
             case "First Name":
                 updateQuery = "UPDATE Passenger SET firstName = ? WHERE passportNum = ?";
@@ -60,47 +55,31 @@ public class Passenger {
                 updateQuery = "UPDATE Passenger SET phoneNum = ? WHERE passportNum = ?";
                 break;
             default:
-                return false; // 선택된 속성이 유효하지 않은 경우
+                return false; // Return false if an invalid attribute is selected
         }
     
         try (PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
             stmt.setString(1, newValue);
             stmt.setString(2, passportNum);
             int rowsAffected = stmt.executeUpdate();
-            return rowsAffected > 0;
+            return rowsAffected > 0; // Return true if update was successful, false otherwise
         }
     }
-	
-    public static void insertPassenger(
-    		Connection conn, 
-    		String passportNum,
-    		String firstName, 
-    		String lastName, 
-    		String dateOfBirth, 
-    		String gender, 
-    		String nationality, 
-    		String address, 
-    		String phoneNum) throws SQLException {
+
+    // Method to insert a new passenger into the database
+    public static void insertPassenger(Connection conn, String passportNum, String firstName, String lastName, String dateOfBirth, String gender, String nationality, String address, String phoneNum) throws SQLException {
         try {
-        	insertIntoPassengerTable(conn, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
+            insertIntoPassengerTable(conn, passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-    
-	private static void insertIntoPassengerTable(
-			Connection conn, 
-			String passportNum,
-			String firstName, 
-			String lastName, 
-			String dateOfBirth, 
-			String gender, 
-			String nationality, 
-			String address, 
-			String phoneNum) throws SQLException{
+
+    // Private method to handle the actual SQL insertion of a new passenger
+    private static void insertIntoPassengerTable(Connection conn, String passportNum, String firstName, String lastName, String dateOfBirth, String gender, String nationality, String address, String phoneNum) throws SQLException {
         String query = "INSERT INTO Passenger (passportNum, firstName, lastName, dateOfBirth, gender, nationality, address, phoneNum) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pStmt = conn.prepareStatement(query)){
+        try (PreparedStatement pStmt = conn.prepareStatement(query)) {
             pStmt.setString(1, passportNum);
             pStmt.setString(2, firstName);
             pStmt.setString(3, lastName);
@@ -112,9 +91,9 @@ public class Passenger {
 
             int rowsInserted = pStmt.executeUpdate();
             if (rowsInserted > 0) {
-                System.out.println("[SUCCESS] Insert into passenger table.");
+                System.out.println("[SUCCESS] Insert into passenger table."); // Success message
             } else {
-                System.out.println("[FAIL] Insert into passenger table.");
+                System.out.println("[FAIL] Insert into passenger table."); // Failure message
             }
         }
     }
