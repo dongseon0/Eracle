@@ -79,7 +79,7 @@ public class Reservation {
         	int totalPrice = calculateTotalPrice(conn, flightId, classType, additionalBaggage);
             insertIntoReservationTable(conn, flightId, passengerId, passportNum, reservationDateStr, classType, seatNum, additionalBaggage, totalPrice);
             // 좌석 가용성 업데이트
-            updateSeatAvailability(conn, flightId, seatNum, false);
+            updatePassengerSeat(conn, passengerId, flightId, seatNum, false);
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,14 +120,13 @@ public class Reservation {
             stmt.setString(2, flightId);
             int seatNum = getSeatNum(conn, passportNum, flightId);
             if (stmt.executeUpdate() > 0)
-            	updateSeatAvailability(conn, flightId, seatNum, true);
+                resetPassengerSeat(conn, true, flightId, seatNum);
             	return 1;
         } catch (SQLException e) {
             e.printStackTrace();
             return 0;
         }
     }
-    
     private static void insertIntoReservationTable(
     		Connection conn, 
     		String flightId,
@@ -160,26 +159,70 @@ public class Reservation {
             }
         }
     }
-    
-    private static void updateSeatAvailability(
-    		Connection conn, 
-    		String flightId, 
-    		int seatNum,
-    		boolean isAvailable) throws SQLException {
-        // 좌석 가용성 업데이트 SQL 작성
-        String sql = "UPDATE Seat SET isAvailable = ? WHERE flightId = ? AND seatNum = ?";
 
-        // SQL 실행
-        try (PreparedStatement updateStmt = conn.prepareStatement(sql)) {
-        	updateStmt.setBoolean(1, isAvailable);
-            updateStmt.setString(2, flightId);
-            updateStmt.setInt(3, seatNum);
-            int rowsUpdated = updateStmt.executeUpdate();
+
+    private static void updatePassengerSeat(
+            Connection conn,
+            long passengerId,
+            String flightId,
+            int seatNum, boolean isAvailable) throws SQLException {
+        String sql = "UPDATE PassengerSeat SET passengerId = ?, isAvailable = ? WHERE flightId = ? AND seatNum = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setLong(1, passengerId);
+            stmt.setBoolean(2, isAvailable);
+            stmt.setString(3, flightId);
+            stmt.setInt(4, seatNum);
+            int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
-                System.out.println("좌석 가용성이 업데이트되었습니다.");
+                System.out.println("PassengerSeat updated successfully.");
             } else {
-                System.out.println("좌석 가용성 업데이트에 실패했습니다.");
+                System.out.println("Failed to update PassengerSeat.");
             }
         }
     }
+
+    private static void resetPassengerSeat(
+            Connection conn,
+            boolean isAvailable,
+            String flightId,
+            int seatNum
+    ) throws SQLException {
+        String sql = "UPDATE PassengerSeat SET passengerId = NULL, isAvailable = ? WHERE flightId = ? AND seatNum = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setBoolean(1, isAvailable);
+            stmt.setString(2, flightId);
+            stmt.setInt(3, seatNum);
+            int rowsUpdated = stmt.executeUpdate();
+            if (rowsUpdated > 0) {
+                System.out.println("PassengerSeat reset successfully.");
+            } else {
+                System.out.println("Failed to reset PassengerSeat.");
+            }
+        }
+    }
+
+
+//    private static void updateSeatAvailability(
+//    		Connection conn,
+//    		String flightId,
+//    		int seatNum,
+//    		boolean isAvailable) throws SQLException {
+//        // 좌석 가용성 업데이트 SQL 작성
+//        String sql = "UPDATE Seat SET isAvailable = ? WHERE flightId = ? AND seatNum = ?";
+//
+//        // SQL 실행
+//        try (PreparedStatement updateStmt = conn.prepareStatement(sql)) {
+//        	updateStmt.setBoolean(1, isAvailable);
+//            updateStmt.setString(2, flightId);
+//            updateStmt.setInt(3, seatNum);
+//            int rowsUpdated = updateStmt.executeUpdate();
+//            if (rowsUpdated > 0) {
+//                System.out.println("좌석 가용성이 업데이트되었습니다.");
+//            } else {
+//                System.out.println("좌석 가용성 업데이트에 실패했습니다.");
+//            }
+//        }
+//    }
 }
