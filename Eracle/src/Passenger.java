@@ -29,26 +29,43 @@ public class Passenger {
     }
     
 
-    public static boolean updatePassenger(
-    		Connection conn, 
-    		String passportNum,
-    		String firstName, 
-    		String lastName, 
-    		String dateOfBirth, 
-    		String gender, 
-    		String nationality, 
-    		String address, 
-    		String phoneNum) throws SQLException {
-        String updateQuery = "UPDATE Passenger SET firstName = ?, lastName = ?, dateOfBirth = ?, gender = ?, nationality = ?, address = ?, phoneNum = ? WHERE passportNum = ?";
+  
+    public static boolean updatePassengerAttribute(
+        Connection conn, 
+        String passportNum,
+        String selectedAttribute,
+        String newValue
+    ) throws SQLException {
+        String updateQuery = "";
+        switch (selectedAttribute) {
+            case "First Name":
+                updateQuery = "UPDATE Passenger SET firstName = ? WHERE passportNum = ?";
+                break;
+            case "Last Name":
+                updateQuery = "UPDATE Passenger SET lastName = ? WHERE passportNum = ?";
+                break;
+            case "Date of Birth":
+                updateQuery = "UPDATE Passenger SET dateOfBirth = ? WHERE passportNum = ?";
+                break;
+            case "Gender":
+                updateQuery = "UPDATE Passenger SET gender = ? WHERE passportNum = ?";
+                break;
+            case "Nationality":
+                updateQuery = "UPDATE Passenger SET nationality = ? WHERE passportNum = ?";
+                break;
+            case "Address":
+                updateQuery = "UPDATE Passenger SET address = ? WHERE passportNum = ?";
+                break;
+            case "Phone Number":
+                updateQuery = "UPDATE Passenger SET phoneNum = ? WHERE passportNum = ?";
+                break;
+            default:
+                return false; // 선택된 속성이 유효하지 않은 경우
+        }
+    
         try (PreparedStatement stmt = conn.prepareStatement(updateQuery)) {
-            stmt.setString(1, firstName);
-            stmt.setString(2, lastName);
-            stmt.setString(3, dateOfBirth);
-            stmt.setString(4, gender);
-            stmt.setString(5, nationality);
-            stmt.setString(6, address);
-            stmt.setString(7, phoneNum);
-            stmt.setString(8, passportNum);
+            stmt.setString(1, newValue);
+            stmt.setString(2, passportNum);
             int rowsAffected = stmt.executeUpdate();
             return rowsAffected > 0;
         }

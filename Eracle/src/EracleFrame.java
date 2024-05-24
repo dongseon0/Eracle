@@ -317,7 +317,7 @@ public class EracleFrame extends JFrame {
     
 
     private void updatePassengerInfo() {
-        JTextField passportNumField = new JTextField(20);
+         JTextField passportNumField = new JTextField(20);
     
         JPanel searchPanel = new JPanel(new GridLayout(0, 1));
         searchPanel.add(new JLabel("Passport Number to Update:"));
@@ -326,60 +326,45 @@ public class EracleFrame extends JFrame {
         int searchResult = JOptionPane.showConfirmDialog(this, searchPanel, "Search Passenger", JOptionPane.OK_CANCEL_OPTION);
         if (searchResult == JOptionPane.OK_OPTION) {
             try {
-            	String passportNum = passportNumField.getText();
+                String passportNum = passportNumField.getText();
                 String query = "SELECT * FROM Passenger WHERE passportNum = ?";
                 PreparedStatement stmt = conn.prepareStatement(query);
                 stmt.setString(1, passportNum);
                 ResultSet rs = stmt.executeQuery();
     
                 if (rs.next()) {
-                    JTextField firstNameField = new JTextField(rs.getString("firstName"), 20);
-                    JTextField lastNameField = new JTextField(rs.getString("lastName"), 20);
-                    JTextField dobField = new JTextField(rs.getString("dateOfBirth"), 20);
-                    JTextField genderField = new JTextField(rs.getString("gender"), 20);
-                    JTextField nationalityField = new JTextField(rs.getString("nationality"), 20);
-                    JTextField addressField = new JTextField(rs.getString("address"), 20);
-                    JTextField phoneNumField = new JTextField(rs.getString("phoneNum"), 20);
+                    // 입력할 속성 선택
+                    String[] options = {"First Name", "Last Name", "Date of Birth", "Gender", "Nationality", "Address", "Phone Number"};
+                    JComboBox<String> attributeComboBox = new JComboBox<>(options);
+                    JTextField valueField = new JTextField(20);
     
                     JPanel updatePanel = new JPanel(new GridLayout(0, 1));
-                    updatePanel.add(new JLabel("First Name:"));
-                    updatePanel.add(firstNameField);
-                    updatePanel.add(new JLabel("Last Name:"));
-                    updatePanel.add(lastNameField);
-                    updatePanel.add(new JLabel("Date of Birth (YYYY-MM-DD):"));
-                    updatePanel.add(dobField);
-                    updatePanel.add(new JLabel("Gender:"));
-                    updatePanel.add(genderField);
-                    updatePanel.add(new JLabel("Nationality:"));
-                    updatePanel.add(nationalityField);
-                    updatePanel.add(new JLabel("Address:"));
-                    updatePanel.add(addressField);
-                    updatePanel.add(new JLabel("Phone Number:"));
-                    updatePanel.add(phoneNumField);
+                    updatePanel.add(new JLabel("Select Attribute to Update:"));
+                    updatePanel.add(attributeComboBox);
+                    updatePanel.add(new JLabel("Enter New Value:"));
+                    updatePanel.add(valueField);
     
                     int updateResult = JOptionPane.showConfirmDialog(this, updatePanel, "Update Passenger Info", JOptionPane.OK_CANCEL_OPTION);
                     if (updateResult == JOptionPane.OK_OPTION) {
-                        try {
-                        	if (Passenger.updatePassenger(
-                        			conn, firstNameField.getText(), lastNameField.getText(),
-                        			dobField.getText(), genderField.getText(), nationalityField.getText(),
-                        			addressField.getText(), phoneNumField.getText(), passportNum) == true)
-                        		JOptionPane.showMessageDialog(this, "Passenger information updated successfully.");
-                        	else 
-                        		JOptionPane.showMessageDialog(this, "Passenger information update failed.");
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
+                        String selectedAttribute = (String) attributeComboBox.getSelectedItem();
+                        String newValue = valueField.getText();
+                        
+                        // 업데이트 메서드 호출
+                        boolean updateSuccessful = Passenger.updatePassengerAttribute(conn, passportNum, selectedAttribute, newValue);
+                        if (updateSuccessful) { JOptionPane.showMessageDialog(this, "Passenger information updated successfully.");
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Passenger information update failed.");
                     }
-                } else {
-                    JOptionPane.showMessageDialog(this, "Passenger not found.");
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
+            } else {
+                JOptionPane.showMessageDialog(this, "Passenger not found.");
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
-    
+}
+
 
     public static void main(String[] args) {
         new EracleFrame();
