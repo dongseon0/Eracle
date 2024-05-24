@@ -7,47 +7,45 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Reservation {
-	private static int getSeatNum(
-			Connection conn, 
-			String passportNum, 
-			String flightId) {
-	    int seatNum = 0;
-	    Long passengerId = null;
 
-	    // Retrieve passenger ID
-	    try {
-	        passengerId = Passenger.getPassengerId(conn, passportNum);
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
+    // Method to get seat number based on passenger's passport number and flight ID
+    private static int getSeatNum(Connection conn, String passportNum, String flightId) {
+        int seatNum = 0;
+        Long passengerId = null;
 
-	    if (passengerId == null) {
-	        return seatNum; // Return 0 if passengerId is not found
-	    }
+        // Retrieve passenger ID using the passport number
+        try {
+            passengerId = Passenger.getPassengerId(conn, passportNum);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	    // Retrieve seat number
-	    String seatNumQuery = "SELECT seatNum FROM passengerSeat WHERE passengerId = ? AND flightId = ?";
-	    try (PreparedStatement stmt = conn.prepareStatement(seatNumQuery)) {
-	        stmt.setLong(1, passengerId);
-	        stmt.setString(2, flightId); // Adding flightId to the query
-	        try (ResultSet rs = stmt.executeQuery()) {
-	            if (rs.next()) {
-	                seatNum = rs.getInt("seatNum");
-	            }
-	        }
-	    } catch (SQLException e) {
-	        e.printStackTrace();
-	    }
+        // If passenger ID is not found, return 0
+        if (passengerId == null) {
+            return seatNum;
+        }
 
-	    return seatNum;
-	}
+        // Retrieve seat number using passenger ID and flight ID
+        String seatNumQuery = "SELECT seatNum FROM passengerSeat WHERE passengerId = ? AND flightId = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(seatNumQuery)) {
+            stmt.setLong(1, passengerId);
+            stmt.setString(2, flightId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    seatNum = rs.getInt("seatNum");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	private static int calculateTotalPrice(
-			Connection conn, 
-			String flightId, 
-			String classType, 
-			boolean additionalBaggage) {
+        return seatNum;
+    }
+
+    // Method to calculate total price based on flight ID, class type, and additional baggage
+    private static int calculateTotalPrice(Connection conn, String flightId, String classType, boolean additionalBaggage) {
         int basePrice = 0;
+        // Retrieve base price of the flight
         try {
             String query = "SELECT flightPrice FROM Flight WHERE flightId = ?";
             PreparedStatement stmt = conn.prepareStatement(query);
@@ -60,25 +58,22 @@ public class Reservation {
             e.printStackTrace();
         }
 
+        // Determine the price multiplier based on class type
         int classMultiplier = "First".equalsIgnoreCase(classType) ? 3 : ("Business".equalsIgnoreCase(classType) ? 2 : 1);
         int baggageFee = additionalBaggage ? 50 : 0;
 
+        // Calculate total price
         return basePrice * classMultiplier + baggageFee;
     }
-	
-    public static boolean makeReservation(
-    		Connection conn, 
-    		String flightId,
-    		long passengerId, 
-    		String passportNum, 
-    		Timestamp reservationDateStr, 
-    		String classType, 
-    		int seatNum, 
-    		boolean additionalBaggage) throws SQLException {
+
+    // Method to make a reservation
+    public static boolean makeReservation(Connection conn, String flightId, long passengerId, String passportNum, Timestamp reservationDateStr, String classType, int seatNum, boolean additionalBaggage) throws SQLException {
         try {
-        	int totalPrice = calculateTotalPrice(conn, flightId, classType, additionalBaggage);
+            // Calculate total price for the reservation
+            int totalPrice = calculateTotalPrice(conn, flightId, classType, additionalBaggage);
+            // Insert reservation into the reservation table
             insertIntoReservationTable(conn, flightId, passengerId, passportNum, reservationDateStr, classType, seatNum, additionalBaggage, totalPrice);
-            // 좌석 가용성 업데이트
+            // Update seat availability
             updatePassengerSeat(conn, passengerId, flightId, seatNum, false);
             return true;
         } catch (SQLException e) {
@@ -86,7 +81,8 @@ public class Reservation {
             return false;
         }
     }
-    
+
+    // Method to get reservations based on passenger's passport number
     public static List<String> getReservationsByPassportNum(Connection conn, String passportNum) throws SQLException {
         List<String> myReservations = new ArrayList<>();
         String query = "SELECT flightId, reservationDate, classType, seatNum, additionalBaggage " +
@@ -96,6 +92,7 @@ public class Reservation {
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, passportNum);
             try (ResultSet rs = stmt.executeQuery()) {
+                // Retrieve and add reservation details to the list
                 while (rs.next()) {
                     myReservations.add("Flight ID: " + rs.getString("flightId") + 
                                        ", Reservation Date: " + rs.getDate("reservationDate") + 
@@ -107,11 +104,9 @@ public class Reservation {
         }
         return myReservations;
     }
-    
-    public static int deleteReservationByFlightId(
-    		Connection conn,
-    		String passportNum, 
-    		String flightId) {
+
+    // Method to delete a reservation based on flight ID and passport number
+    public static int deleteReservationByFlightId(Connection conn, String passportNum, String flightId) {
         String query = "DELETE FROM Reservation " +
                        "WHERE passengerId = (SELECT passengerId FROM Passenger WHERE passportNum = ?) " +
                        "AND flightId = ?";
@@ -119,28 +114,23 @@ public class Reservation {
             stmt.setString(1, passportNum);
             stmt.setString(2, flightId);
             int seatNum = getSeatNum(conn, passportNum, flightId);
-            if (stmt.executeUpdate() > 0)
+            if (stmt.executeUpdate() > 0) {
+                // Reset seat availability if deletion is successful
                 resetPassengerSeat(conn, true, flightId, seatNum);
-            	return 1;
+                return 1;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return 0;
         }
+        return 0;
     }
-    private static void insertIntoReservationTable(
-    		Connection conn, 
-    		String flightId,
-    		long passengerId, 
-    		String passportNum, 
-    		Timestamp reservationDateStr, 
-    		String classType, 
-    		int seatNum, 
-    		boolean additionalBaggage, 
-    		int totalPrice) throws SQLException {
+
+    // Private method to insert a reservation into the reservation table
+    private static void insertIntoReservationTable(Connection conn, String flightId, long passengerId, String passportNum, Timestamp reservationDateStr, String classType, int seatNum, boolean additionalBaggage, int totalPrice) throws SQLException {
         String sql = "INSERT INTO Reservation (flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pStmt = conn.prepareStatement(sql)) {
-            // 값 설정
+            // Set values for the SQL query
             pStmt.setString(1, flightId);
             pStmt.setLong(2, passengerId);
             pStmt.setString(3, passportNum);
@@ -150,22 +140,18 @@ public class Reservation {
             pStmt.setBoolean(7, additionalBaggage);
             pStmt.setInt(8, totalPrice);
 
-            // 쿼리 실행
+            // Execute the query and check the result
             int rowsInserted = pStmt.executeUpdate();
             if (rowsInserted > 0) {
-                System.out.println("예약되었습니다.");
+                System.out.println("Reservation successful.");
             } else {
-                System.out.println("예약에 실패했습니다.");
+                System.out.println("Reservation failed.");
             }
         }
     }
 
-
-    private static void updatePassengerSeat(
-            Connection conn,
-            long passengerId,
-            String flightId,
-            int seatNum, boolean isAvailable) throws SQLException {
+    // Private method to update passenger seat availability
+    private static void updatePassengerSeat(Connection conn, long passengerId, String flightId, int seatNum, boolean isAvailable) throws SQLException {
         String sql = "UPDATE PassengerSeat SET passengerId = ?, isAvailable = ? WHERE flightId = ? AND seatNum = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -182,12 +168,8 @@ public class Reservation {
         }
     }
 
-    private static void resetPassengerSeat(
-            Connection conn,
-            boolean isAvailable,
-            String flightId,
-            int seatNum
-    ) throws SQLException {
+    // Private method to reset passenger seat availability
+    private static void resetPassengerSeat(Connection conn, boolean isAvailable, String flightId, int seatNum) throws SQLException {
         String sql = "UPDATE PassengerSeat SET passengerId = NULL, isAvailable = ? WHERE flightId = ? AND seatNum = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -203,26 +185,4 @@ public class Reservation {
         }
     }
 
-
-//    private static void updateSeatAvailability(
-//    		Connection conn,
-//    		String flightId,
-//    		int seatNum,
-//    		boolean isAvailable) throws SQLException {
-//        // 좌석 가용성 업데이트 SQL 작성
-//        String sql = "UPDATE Seat SET isAvailable = ? WHERE flightId = ? AND seatNum = ?";
-//
-//        // SQL 실행
-//        try (PreparedStatement updateStmt = conn.prepareStatement(sql)) {
-//        	updateStmt.setBoolean(1, isAvailable);
-//            updateStmt.setString(2, flightId);
-//            updateStmt.setInt(3, seatNum);
-//            int rowsUpdated = updateStmt.executeUpdate();
-//            if (rowsUpdated > 0) {
-//                System.out.println("좌석 가용성이 업데이트되었습니다.");
-//            } else {
-//                System.out.println("좌석 가용성 업데이트에 실패했습니다.");
-//            }
-//        }
-//    }
 }
