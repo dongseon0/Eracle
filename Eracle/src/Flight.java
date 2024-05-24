@@ -62,7 +62,7 @@ public class Flight {
                 while (rs.next()) {
                     // Add the airline and its minimum flight price to the list
                     flights.add("Airline: " + rs.getString("airline") + 
-                                ", Minimum Price: $" + rs.getDouble("MinPrice"));
+                                ", Minimum Price: ₩" + rs.getDouble("MinPrice"));
                 }
             }
         }
