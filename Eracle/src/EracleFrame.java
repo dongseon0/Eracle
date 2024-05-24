@@ -243,7 +243,7 @@ public class EracleFrame extends JFrame {
                 if (flights.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "No flights found for the selected date.", "No Flights", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    JOptionPane.showMessageDialog(this, new JList<>(flights.toArray()), "Cheapest Flights", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(this, new JList<>(flights.toArray()), "Find Cheapest Flights", JOptionPane.INFORMATION_MESSAGE);
                 }
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -303,7 +303,7 @@ public class EracleFrame extends JFrame {
         panel.add(passportNumField);
 
         // Show dialog to input passport number
-        int result = JOptionPane.showConfirmDialog(this, panel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
+        int result = JOptionPane.showConfirmDialog(this, panel, "Cancel Reservation", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
             try {
                 // Retrieve reservations from the database
@@ -326,7 +326,7 @@ public class EracleFrame extends JFrame {
                     displayPanel.add(inputPanel, BorderLayout.SOUTH);
 
                     // Show dialog to delete reservation
-                    int deleteResult = JOptionPane.showConfirmDialog(this, displayPanel, "Check My Reservation", JOptionPane.OK_CANCEL_OPTION);
+                    int deleteResult = JOptionPane.showConfirmDialog(this, displayPanel, "Cancel Reservation", JOptionPane.OK_CANCEL_OPTION);
                     if (deleteResult == JOptionPane.OK_OPTION) {
                         // Delete reservation in the database
                         int rowsAffected = Reservation.deleteReservationByFlightId(conn, passportNumField.getText(), flightIdField.getText());
