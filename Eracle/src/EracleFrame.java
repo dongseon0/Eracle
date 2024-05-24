@@ -61,7 +61,7 @@ public class EracleFrame extends JFrame {
             }
         });
 
-        JButton cheapestFlightsButton = new JButton("Find Cheapest Flights");
+        JButton cheapestFlightsButton = new JButton("Find Cheapest Flights by Airline");
         cheapestFlightsButton.setFont(new Font("Monospaced", Font.BOLD, 20));
         cheapestFlightsButton.setBackground(EWHA_COLOR_2);
         cheapestFlightsButton.setOpaque(true);
