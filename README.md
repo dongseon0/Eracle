@@ -17,5 +17,5 @@ Eracle Airline Reservation System is a Java application designed to manage airli
 
 ## More Information
 - **Language**: Java, MySQL
-- **Contributors**: Dongseon Yang, Eunbi Jung, Gilim Kim, Seojeong Han
+- **Contributors**: Dongseon Yang, Eunbi Jung, Gilim Kim, Seojung Han
 - **License**: MIT License
