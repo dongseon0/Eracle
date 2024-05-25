@@ -93,7 +93,9 @@ VALUES
     (514, 'CA404', 2, FALSE, 10004),
     (515, 'QF405', 5, FALSE, 10014),
     (516, 'AC406', 2, FALSE, 10007),
-    (517, 'OZ408', 5, FALSE, 10008);
+    (517, 'OZ408', 5, FALSE, 10008),
+    (518, 'KE410', 1, TRUE, NULL),
+    (519, 'KL200', 1, TRUE, NULL);
 
 INSERT INTO Reservation (reservationId, flightId, passengerId, passportNum, reservationDate, classType, seatNum, additionalBaggage, totalPrice)
 VALUES
